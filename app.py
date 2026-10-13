@@ -3730,6 +3730,17 @@ def ensure_admin_from_environment():
                 raise RuntimeError(
                     "The configured admin email or phone belongs to another role."
                 )
+            conn.execute(
+                "UPDATE users SET name = ?, email = ?, phone = ?, password = ? WHERE id = ?",
+                (
+                    name,
+                    email,
+                    phone,
+                    generate_password_hash(password),
+                    existing["id"],
+                ),
+            )
+            conn.commit()
             return
 
         conn.execute(
