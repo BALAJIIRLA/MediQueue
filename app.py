@@ -3697,7 +3697,55 @@ def logout():
 # START SERVER
 # =========================================================
 
+def ensure_admin_from_environment():
+    name = os.environ.get("MEDIQUEUE_ADMIN_NAME", "").strip()
+    email = os.environ.get("MEDIQUEUE_ADMIN_EMAIL", "").strip().lower()
+    phone = os.environ.get("MEDIQUEUE_ADMIN_PHONE", "").strip()
+    password = os.environ.get("MEDIQUEUE_ADMIN_PASSWORD", "")
+
+    values = [name, email, phone, password]
+
+    if not any(values):
+        return
+
+    if not all(values):
+        raise RuntimeError(
+            "Set all four MEDIQUEUE_ADMIN_* environment variables."
+        )
+
+    if len(password) < 12:
+        raise RuntimeError(
+            "MEDIQUEUE_ADMIN_PASSWORD must contain at least 12 characters."
+        )
+
+    conn = get_db()
+    try:
+        existing = conn.execute(
+            "SELECT id, role FROM users WHERE email = ? OR phone = ?",
+            (email, phone),
+        ).fetchone()
+
+        if existing:
+            if existing["role"] != "admin":
+                raise RuntimeError(
+                    "The configured admin email or phone belongs to another role."
+                )
+            return
+
+        conn.execute(
+            """
+            INSERT INTO users (name, email, phone, password, role)
+            VALUES (?, ?, ?, ?, 'admin')
+            """,
+            (name, email, phone, generate_password_hash(password)),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+
+
 init_database()
+ensure_admin_from_environment()
 
 
 if __name__ == "__main__":
