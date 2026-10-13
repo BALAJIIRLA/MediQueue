@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Doctor Login</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            Medi<span>Queue</span>
+        </div>
+
+        <h1>Doctor Login</h1>
+
+        <p class="auth-subtitle">
+            Login to manage your patient queue.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <label>Email</label>
+            <input type="email" name="email"
+                   placeholder="Doctor email" required>
+
+            <label>Password</label>
+            <input type="password" name="password"
+                   placeholder="Password" required>
+
+            <button class="auth-button" type="submit">
+                Doctor Login
+            </button>
+
+        </form>
+
+        <p class="auth-footer">
+            New doctor?
+            <a href="{{ url_for('doctor_register') }}">
+                Create Doctor Account
+            </a>
+        </p>
+
+        <p class="auth-footer">
+            <a href="{{ url_for('login') }}">
+                Patient Login
+            </a>
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>

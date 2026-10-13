@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Hospital Appointment & Queue Management</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <header class="navbar">
+        <div class="logo">Medi<span>Queue</span></div>
+
+        <nav>
+            <a href="/">Home</a>
+            <a href="#about">About</a>
+            <a href="#features">Features</a>
+        </nav>
+
+        <div class="nav-buttons">
+            <a href="{{ url_for('login') }}" class="nav-action-btn">Patient Login</a>
+            <a href="{{ url_for('doctor_login') }}" class="nav-action-btn">Doctor Login</a>
+        </div>
+    </header>
+
+
+    <main>
+
+        <section class="hero">
+
+            <div class="hero-content">
+
+                <p class="tagline">SMART HOSPITAL MANAGEMENT</p>
+
+                <h1>
+                    Book Your Appointment.
+                    <span>Track Your Queue.</span>
+                </h1>
+
+                <p class="description">
+                    MediQueue makes hospital appointments easier by allowing
+                    patients to book appointments and track their real-time
+                    queue status.
+                </p>
+
+                <div class="hero-buttons">
+                    <a href="{{ url_for('login') }}" class="primary-btn hero-action-link">Book Appointment</a>
+                    <a href="{{ url_for('doctor_login') }}" class="secondary-btn hero-action-link">Doctor Login</a>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section id="features" class="features">
+
+            <h2>Why MediQueue?</h2>
+
+            <div class="feature-container">
+
+                <div class="feature-card">
+                    <div class="icon">📅</div>
+                    <h3>Easy Booking</h3>
+                    <p>
+                        Patients can book hospital appointments
+                        quickly and easily.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">🎫</div>
+                    <h3>Smart Token System</h3>
+                    <p>
+                        Automatically receive a token number
+                        after booking an appointment.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">📊</div>
+                    <h3>Real-Time Queue</h3>
+                    <p>
+                        Track the current token and see your
+                        position in the queue.
+                    </p>
+                </div>
+
+                <div class="feature-card">
+                    <div class="icon">👨‍⚕️</div>
+                    <h3>Doctor Dashboard</h3>
+                    <p>
+                        Doctors can manage patients and update
+                        appointment status.
+                    </p>
+                </div>
+
+            </div>
+
+        </section>
+
+
+        <section id="about" class="about">
+
+            <h2>About MediQueue</h2>
+
+            <p>
+                MediQueue is a hospital appointment and queue management
+                system designed to reduce waiting time and make patient
+                management easier for hospitals and doctors.
+            </p>
+
+        </section>
+
+    </main>
+
+
+    <footer>
+        <p>© 2026 MediQueue | Hospital Appointment & Queue Management System</p>
+    </footer>
+
+</body>
+</html>

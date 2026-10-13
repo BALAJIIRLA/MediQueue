@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - All Patients</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            <button>Admin Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">ADMIN PANEL</p>
+
+        <h1>All Patients</h1>
+
+        <p>
+            View all registered patients in MediQueue.
+        </p>
+
+    </section>
+
+
+    <section class="admin-section">
+
+        <div class="admin-list-header">
+
+            <h2>
+                Registered Patients
+            </h2>
+
+            <span class="admin-count">
+                {{ patients|length }} Patients
+            </span>
+
+        </div>
+
+
+        {% if patients %}
+
+            <div class="admin-table-wrapper">
+
+                <table class="admin-table">
+
+                    <thead>
+
+                        <tr>
+                            <th>ID</th>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Phone</th>
+                            <th>Age</th>
+                            <th>Gender</th>
+                            <th>Registered</th>
+                        </tr>
+
+                    </thead>
+
+
+                    <tbody>
+
+                        {% for patient in patients %}
+
+                        <tr>
+
+                            <td>
+                                {{ patient["patient_id"] }}
+                            </td>
+
+                            <td>
+                                <strong>
+                                    {{ patient["name"] }}
+                                </strong>
+                            </td>
+
+                            <td>
+                                {{ patient["email"] }}
+                            </td>
+
+                            <td>
+                                {{ patient["phone"] }}
+                            </td>
+
+                            <td>
+                                {{ patient["age"] }}
+                            </td>
+
+                            <td>
+                                {{ patient["gender"] }}
+                            </td>
+
+                            <td>
+                                {{ patient["created_at"] }}
+                            </td>
+
+                        </tr>
+
+                        {% endfor %}
+
+                    </tbody>
+
+                </table>
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h3>No patients found</h3>
+
+                <p>
+                    Registered patients will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

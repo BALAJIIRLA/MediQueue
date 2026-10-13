@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Doctor Registration</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<div class="auth-container">
+
+    <div class="auth-card">
+
+        <div class="auth-logo">
+            Medi<span>Queue</span>
+        </div>
+
+        <h1>Doctor Registration</h1>
+
+        <p class="auth-subtitle">
+            Create your professional doctor account.
+        </p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+
+            <label>Full Name</label>
+            <input type="text" name="name"
+                   placeholder="Dr. Your Name" required>
+
+            <label>Email</label>
+            <input type="email" name="email"
+                   placeholder="doctor@example.com" required>
+
+            <label>Phone Number</label>
+            <input type="tel" name="phone"
+                   placeholder="Enter phone number" required>
+
+            <label>Department</label>
+            <select name="department" required>
+                <option value="">Select department</option>
+                <option>General Medicine</option>
+                <option>Cardiology</option>
+                <option>Dermatology</option>
+                <option>Pediatrics</option>
+                <option>Orthopedics</option>
+                <option>Gynecology</option>
+                <option>ENT</option>
+                <option>Ophthalmology</option>
+                <option>Neurology</option>
+                <option>Dentistry</option>
+                <option>Other</option>
+            </select>
+
+            <label>Specialization</label>
+            <input type="text" name="specialization"
+                   placeholder="Example: General Physician" required>
+
+            <label>Qualification</label>
+            <input type="text" name="qualification"
+                   placeholder="Example: MBBS, MD" required>
+
+            <label>Experience (Years)</label>
+            <input type="number" name="experience"
+                   min="0" max="70"
+                   placeholder="Years of experience" required>
+
+            <label>Password</label>
+            <input type="password" name="password"
+                   minlength="6"
+                   placeholder="Minimum 6 characters" required>
+
+            <button class="auth-button" type="submit">
+                Submit Registration
+            </button>
+
+        </form>
+
+        <p class="auth-footer">
+            Already registered?
+            <a href="{{ url_for('doctor_login') }}">
+                Doctor Login
+            </a>
+        </p>
+
+        <p class="auth-footer">
+            <a href="{{ url_for('home') }}">
+                ← Back to Home
+            </a>
+        </p>
+
+    </div>
+
+</div>
+
+</body>
+</html>

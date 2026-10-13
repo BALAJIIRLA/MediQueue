@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Patient Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('patient_profile') }}">
+            <button>My Profile</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">PATIENT DASHBOARD</p>
+
+        <h1>
+            Welcome, {{ name }} 👋
+        </h1>
+
+        <p>
+            Manage your hospital appointments and queue.
+        </p>
+
+    </section>
+
+
+    <section class="dashboard-cards">
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                👨‍⚕️
+            </div>
+
+            <h2>
+                Find Doctor
+            </h2>
+
+            <p>
+                Find an approved doctor and book an appointment.
+            </p>
+
+            <a href="{{ url_for('patient_doctors') }}">
+
+                <button class="primary-btn">
+                    Find Doctor
+                </button>
+
+            </a>
+
+        </div>
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                🎫
+            </div>
+
+            <h2>
+                My Appointments
+            </h2>
+
+            <p>
+                View your appointment tokens and status.
+            </p>
+
+            <a href="{{ url_for('patient_appointments') }}">
+
+                <button class="secondary-btn">
+                    View Appointments
+                </button>
+
+            </a>
+
+        </div>
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                📊
+            </div>
+
+            <h2>
+                My Queue
+            </h2>
+
+            <p>
+                Track your position in the hospital queue.
+            </p>
+
+            <a href="{{ url_for('patient_my_queue') }}">
+
+                <button class="secondary-btn">
+                    Track Live Queue
+                </button>
+
+            </a>
+
+        </div>
+
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

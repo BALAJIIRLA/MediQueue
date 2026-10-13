@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Doctor Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">
+            DOCTOR DASHBOARD
+        </p>
+
+        <h1>
+            Welcome, {{ doctor["name"] }} 👨‍⚕️
+        </h1>
+
+        <p>
+            Manage today's patient queue.
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% for category, message in messages %}
+
+            <div class="message {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <!-- DOCTOR INFORMATION -->
+
+    <section class="dashboard-cards">
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                🏥
+            </div>
+
+            <h2>
+                Department
+            </h2>
+
+            <p>
+                {{ doctor["department"] }}
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                🎓
+            </div>
+
+            <h2>
+                Qualification
+            </h2>
+
+            <p>
+                {{ doctor["qualification"] }}
+            </p>
+
+        </div>
+
+
+        <div class="dashboard-card">
+
+            <div class="dashboard-icon">
+                ⏱️
+            </div>
+
+            <h2>
+                Experience
+            </h2>
+
+            <p>
+                {{ doctor["experience"] }} years
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- QUEUE CONTROL -->
+
+    <section class="queue-control">
+
+        <div>
+
+            <h2>
+                Today's Queue
+            </h2>
+
+            <p>
+                {{ today }}
+            </p>
+
+        </div>
+
+
+        <form
+            method="POST"
+            action="{{ url_for('doctor_call_next') }}"
+        >
+
+            <button
+                type="submit"
+                class="primary-btn call-next-btn"
+            >
+                📢 Call Next Patient
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <!-- PATIENT QUEUE -->
+
+    <section class="doctor-queue">
+
+        {% if appointments %}
+
+            {% for appointment in appointments %}
+
+            <div class="queue-patient
+                {% if appointment['status'] == 'CALLED' %}
+                    queue-called
+                {% elif appointment['status'] == 'IN_PROGRESS' %}
+                    queue-progress
+                {% elif appointment['status'] == 'COMPLETED' %}
+                    queue-completed
+                {% elif appointment['status'] == 'SKIPPED' %}
+                    queue-skipped
+                {% endif %}
+            ">
+
+                <div class="queue-token">
+
+                    <span>
+                        TOKEN
+                    </span>
+
+                    <strong>
+                        {{ appointment["token_number"] }}
+                    </strong>
+
+                </div>
+
+
+                <div class="queue-patient-info">
+
+                    <h3>
+                        {{ appointment["patient_name"] }}
+                    </h3>
+
+                    <p>
+                        Age:
+                        {{ appointment["age"] }}
+                    </p>
+
+                    <p>
+                        Gender:
+                        {{ appointment["gender"] }}
+                    </p>
+
+                </div>
+
+
+                <div class="queue-status">
+
+                    <span class="status-badge
+                        status-{{ appointment['status']
+                        |lower
+                        }}">
+                        {{ appointment["status"] }}
+                    </span>
+
+                </div>
+
+
+                <div class="queue-actions">
+
+                    {% if appointment["status"] == "CALLED" %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'doctor_accept_patient',
+                                appointment_id=appointment['id']
+                            ) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="primary-btn"
+                            >
+                                ▶ Start Consultation
+                            </button>
+
+                        </form>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'doctor_skip_patient',
+                                appointment_id=appointment['id']
+                            ) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="danger-btn"
+                            >
+                                Skip
+                            </button>
+
+                        </form>
+
+                    {% elif appointment["status"] == "IN_PROGRESS" %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'doctor_complete_patient',
+                                appointment_id=appointment['id']
+                            ) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="primary-btn"
+                            >
+                                ✓ Complete
+                            </button>
+
+                        </form>
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'doctor_skip_patient',
+                                appointment_id=appointment['id']
+                            ) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="danger-btn"
+                            >
+                                Skip
+                            </button>
+
+                        </form>
+
+                    {% elif appointment["status"] == "WAITING" %}
+
+                        <form
+                            method="POST"
+                            action="{{ url_for(
+                                'doctor_skip_patient',
+                                appointment_id=appointment['id']
+                            ) }}"
+                        >
+
+                            <button
+                                type="submit"
+                                class="danger-btn"
+                            >
+                                Skip
+                            </button>
+
+                        </form>
+
+                    {% else %}
+
+                        <span class="finished-text">
+                            No action
+                        </span>
+
+                    {% endif %}
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h2>
+                    No appointments today
+                </h2>
+
+                <p>
+                    Patients who book an appointment for today
+                    will appear here.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

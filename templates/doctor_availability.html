@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Doctor Availability</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('doctor_dashboard') }}">
+            <button>Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">DOCTOR PORTAL</p>
+
+        <h1>Doctor Availability</h1>
+
+        <p>
+            Set the days and working hours when patients can book you.
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% for category, message in messages %}
+
+            <div class="message {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <section class="availability-card">
+
+        <h2>Weekly Schedule</h2>
+
+        <p>
+            Enable the days when you normally accept appointments.
+        </p>
+
+
+        <form method="POST"
+              action="{{ url_for('doctor_availability') }}">
+
+            <div class="availability-table">
+
+                {% for day in days %}
+
+                <div class="availability-row">
+
+                    <div class="availability-day">
+
+                        <label>
+
+                            <input
+                                type="checkbox"
+                                name="available_{{ day['number'] }}"
+                                {% if day["is_available"] %}
+                                    checked
+                                {% endif %}
+                            >
+
+                            <strong>
+                                {{ day["name"] }}
+                            </strong>
+
+                        </label>
+
+                    </div>
+
+
+                    <div class="availability-time">
+
+                        <input
+                            type="time"
+                            name="start_{{ day['number'] }}"
+                            value="{{ day['start_time'] }}"
+                        >
+
+                        <span>to</span>
+
+                        <input
+                            type="time"
+                            name="end_{{ day['number'] }}"
+                            value="{{ day['end_time'] }}"
+                        >
+
+                    </div>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+
+            <button
+                type="submit"
+                class="primary-btn">
+                Save Weekly Schedule
+            </button>
+
+        </form>
+
+    </section>
+
+
+    <section class="availability-card">
+
+        <h2>Unavailable Dates</h2>
+
+        <p>
+            Block individual dates such as holidays, leave, or emergencies.
+        </p>
+
+
+        <form method="POST"
+              action="{{ url_for('doctor_add_unavailable_date') }}">
+
+            <div class="availability-date-form">
+
+                <input
+                    type="date"
+                    name="unavailable_date"
+                    min="{{ today }}"
+                    required
+                >
+
+                <input
+                    type="text"
+                    name="reason"
+                    placeholder="Reason (optional)"
+                    maxlength="200"
+                >
+
+                <button
+                    type="submit"
+                    class="primary-btn">
+                    Block Date
+                </button>
+
+            </div>
+
+        </form>
+
+
+        {% if unavailable_dates %}
+
+            <div class="blocked-dates">
+
+                {% for item in unavailable_dates %}
+
+                    <div class="blocked-date">
+
+                        <div>
+
+                            <strong>
+                                {{ item["unavailable_date"] }}
+                            </strong>
+
+                            {% if item["reason"] %}
+                                <span>
+                                    — {{ item["reason"] }}
+                                </span>
+                            {% endif %}
+
+                        </div>
+
+                        <form method="POST"
+                              action="{{ url_for(
+                                  'doctor_remove_unavailable_date',
+                                  unavailable_id=item['id']
+                              ) }}">
+
+                            <button
+                                type="submit"
+                                class="cancel-appointment-btn">
+                                Remove
+                            </button>
+
+                        </form>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <p class="empty-state">
+                No blocked dates.
+            </p>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

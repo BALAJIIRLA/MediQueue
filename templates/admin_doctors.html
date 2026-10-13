@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        MediQueue - {{ page_title }}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            <button>Admin Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">
+            DOCTOR MANAGEMENT
+        </p>
+
+        <h1>
+            {{ page_title }} 👨‍⚕️
+        </h1>
+
+        <p>
+            Manage registered doctors and their account status.
+        </p>
+
+    </section>
+
+
+    <!-- DOCTOR FILTERS -->
+
+    <section class="admin-filter-section">
+
+        <a href="{{ url_for('admin_doctors') }}"
+           class="admin-filter-btn
+           {% if not selected_status %}active{% endif %}">
+            All Doctors
+        </a>
+
+        <a href="{{ url_for('admin_doctors', status='pending') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'pending' %}active{% endif %}">
+            🟡 Pending
+        </a>
+
+        <a href="{{ url_for('admin_doctors', status='approved') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'approved' %}active{% endif %}">
+            🟢 Approved
+        </a>
+
+        <a href="{{ url_for('admin_doctors', status='blocked') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'blocked' %}active{% endif %}">
+            🚫 Blocked
+        </a>
+
+    </section>
+
+
+    <section class="admin-section">
+
+        <div class="admin-list-header">
+
+            <h2>
+                {{ page_title }}
+            </h2>
+
+            <span class="admin-count">
+                {{ doctors|length }} Doctors
+            </span>
+
+        </div>
+
+
+        {% if doctors %}
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>ID</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Phone</th>
+                        <th>Department</th>
+                        <th>Specialization</th>
+                        <th>Qualification</th>
+                        <th>Experience</th>
+                        <th>Status</th>
+                        <th>Action</th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                {% for doctor in doctors %}
+
+                    <tr>
+
+                        <td>
+                            {{ doctor["doctor_id"] }}
+                        </td>
+
+                        <td>
+                            <strong>
+                                {{ doctor["name"] }}
+                            </strong>
+                        </td>
+
+                        <td>
+                            {{ doctor["email"] }}
+                        </td>
+
+                        <td>
+                            {{ doctor["phone"] }}
+                        </td>
+
+                        <td>
+                            {{ doctor["department"] }}
+                        </td>
+
+                        <td>
+                            {{ doctor["specialization"] }}
+                        </td>
+
+                        <td>
+                            {{ doctor["qualification"] }}
+                        </td>
+
+                        <td>
+                            {{ doctor["experience"] }} years
+                        </td>
+
+                        <td>
+
+                            {% if doctor["status"] == "approved" %}
+
+                                <span class="doctor-status approved">
+                                    APPROVED
+                                </span>
+
+                            {% elif doctor["status"] == "pending" %}
+
+                                <span class="doctor-status pending">
+                                    PENDING
+                                </span>
+
+                            {% elif doctor["status"] == "blocked" %}
+
+                                <span class="doctor-status blocked">
+                                    BLOCKED
+                                </span>
+
+                            {% endif %}
+
+                        </td>
+
+                        <td>
+
+                            {% if doctor["status"] == "pending" %}
+
+                                <form method="POST"
+                                      action="{{ url_for(
+                                          'approve_doctor',
+                                          doctor_id=doctor['doctor_id']
+                                      ) }}">
+
+                                    <button
+                                        class="primary-btn"
+                                        type="submit">
+                                        Approve
+                                    </button>
+
+                                </form>
+
+                            {% elif doctor["status"] == "approved" %}
+
+                                <form method="POST"
+                                      action="{{ url_for(
+                                          'block_doctor',
+                                          doctor_id=doctor['doctor_id']
+                                      ) }}">
+
+                                    <button
+                                        class="danger-btn"
+                                        type="submit">
+                                        Block
+                                    </button>
+
+                                </form>
+
+                            {% elif doctor["status"] == "blocked" %}
+
+                                <form method="POST"
+                                      action="{{ url_for(
+                                          'unblock_doctor',
+                                          doctor_id=doctor['doctor_id']
+                                      ) }}">
+
+                                    <button
+                                        class="secondary-btn"
+                                        type="submit">
+                                        Unblock
+                                    </button>
+
+                                </form>
+
+                            {% endif %}
+
+                        </td>
+
+                    </tr>
+
+                {% endfor %}
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+        {% else %}
+
+        <div class="empty-state">
+
+            <h3>
+                No doctors found
+            </h3>
+
+            <p>
+                Doctors with this status will appear here.
+            </p>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

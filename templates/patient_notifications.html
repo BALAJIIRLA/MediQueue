@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Notifications</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('patient_dashboard') }}">
+            <button>Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('patient_appointments') }}">
+            <button>Appointments</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">PATIENT NOTIFICATIONS</p>
+
+        <h1>Notifications 🔔</h1>
+
+        <p>
+            Stay updated about your appointments and queue.
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+
+            <div class="flash-container">
+
+                {% for category, message in messages %}
+
+                    <div class="flash-message {{ category }}">
+                        {{ message }}
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% endif %}
+    {% endwith %}
+
+
+    <section class="notifications-card">
+
+        <div class="notifications-header">
+
+            <div>
+
+                <h2>Your Notifications</h2>
+
+                {% if unread_count > 0 %}
+
+                    <p class="notification-unread-count">
+                        {{ unread_count }} unread notification{% if unread_count != 1 %}s{% endif %}
+                    </p>
+
+                {% else %}
+
+                    <p class="notification-unread-count">
+                        All notifications are read
+                    </p>
+
+                {% endif %}
+
+            </div>
+
+
+            {% if unread_count > 0 %}
+
+                <form
+                    method="POST"
+                    action="{{ url_for('patient_mark_all_notifications_read') }}"
+                >
+
+                    <button
+                        type="submit"
+                        class="mark-all-read-btn"
+                    >
+                        ✓ Mark All as Read
+                    </button>
+
+                </form>
+
+            {% endif %}
+
+        </div>
+
+
+        {% if notifications %}
+
+            <div class="notification-list">
+
+                {% for notification in notifications %}
+
+                    <div
+                        class="notification-item
+                        {% if notification['is_read'] == 0 %}
+                            notification-unread
+                        {% else %}
+                            notification-read
+                        {% endif %}"
+                    >
+
+                        <div class="notification-main">
+
+                            <div class="notification-icon">
+
+                                {% if notification['notification_type'] == 'BOOKING' %}
+                                    🎫
+                                {% elif notification['notification_type'] == 'CALL' %}
+                                    📢
+                                {% elif notification['notification_type'] == 'START' %}
+                                    🩺
+                                {% elif notification['notification_type'] == 'COMPLETED' %}
+                                    ✅
+                                {% elif notification['notification_type'] == 'SKIPPED' %}
+                                    ⚠️
+                                {% elif notification['notification_type'] == 'CANCELLED' %}
+                                    ❌
+                                {% elif notification['notification_type'] == 'RESCHEDULED' %}
+                                    📅
+                                {% else %}
+                                    🔔
+                                {% endif %}
+
+                            </div>
+
+
+                            <div class="notification-content">
+
+                                <div class="notification-title-row">
+
+                                    <h3>
+                                        {{ notification['title'] }}
+                                    </h3>
+
+                                    {% if notification['is_read'] == 0 %}
+
+                                        <span class="unread-badge">
+                                            NEW
+                                        </span>
+
+                                    {% endif %}
+
+                                </div>
+
+
+                                <p class="notification-message">
+                                    {{ notification['message'] }}
+                                </p>
+
+
+                                {% if notification['appointment_id'] %}
+
+                                    <div class="notification-appointment">
+
+                                        {% if notification['token_number'] %}
+
+                                            <span>
+                                                🎫 Token
+                                                {{ notification['token_number'] }}
+                                            </span>
+
+                                        {% endif %}
+
+                                        {% if notification['appointment_date'] %}
+
+                                            <span>
+                                                📅
+                                                {{ notification['appointment_date'] }}
+                                            </span>
+
+                                        {% endif %}
+
+                                    </div>
+
+
+                                    <a
+                                        href="{{ url_for(
+                                            'patient_live_queue',
+                                            appointment_id=notification['appointment_id']
+                                        ) }}"
+                                        class="notification-view-btn"
+                                    >
+                                        View Appointment
+                                    </a>
+
+                                {% endif %}
+
+                            </div>
+
+                        </div>
+
+
+                        <div class="notification-actions">
+
+                            {% if notification['is_read'] == 0 %}
+
+                                <form
+                                    method="POST"
+                                    action="{{ url_for(
+                                        'patient_mark_notification_read',
+                                        notification_id=notification['id']
+                                    ) }}"
+                                >
+
+                                    <button
+                                        type="submit"
+                                        class="mark-read-btn"
+                                    >
+                                        Mark as Read
+                                    </button>
+
+                                </form>
+
+                            {% else %}
+
+                                <span class="read-label">
+                                    ✓ Read
+                                </span>
+
+                            {% endif %}
+
+                        </div>
+
+                    </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="notifications-empty">
+
+                <div class="empty-notification-icon">
+                    🔔
+                </div>
+
+                <h2>No Notifications</h2>
+
+                <p>
+                    You don't have any notifications yet.
+                </p>
+
+                <a href="{{ url_for('patient_doctors') }}">
+                    <button class="primary-btn">
+                        Find Doctor
+                    </button>
+                </a>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+</html>

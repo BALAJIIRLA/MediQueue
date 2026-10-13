@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>
+        MediQueue - {{ page_title }}
+    </title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+
+<body>
+
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('admin_dashboard') }}">
+            <button>
+                Admin Dashboard
+            </button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>
+                Logout
+            </button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+
+    <section class="dashboard-header">
+
+        <p class="tagline">
+            APPOINTMENT CONTROL CENTER
+        </p>
+
+        <h1>
+            {{ page_title }} 📋
+        </h1>
+
+        <p>
+            Monitor hospital appointments and patient queue status.
+        </p>
+
+    </section>
+
+
+    <!-- FILTER BUTTONS -->
+
+    <section class="admin-filter-section">
+
+        <a href="{{ url_for('admin_appointments') }}"
+           class="admin-filter-btn
+           {% if not selected_status %}active{% endif %}">
+            All
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='WAITING') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'WAITING' %}active{% endif %}">
+            ⏳ Waiting
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='CALLED') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'CALLED' %}active{% endif %}">
+            📞 Called
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='IN_PROGRESS') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'IN_PROGRESS' %}active{% endif %}">
+            🩺 In Progress
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='COMPLETED') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'COMPLETED' %}active{% endif %}">
+            ✅ Completed
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='SKIPPED') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'SKIPPED' %}active{% endif %}">
+            ⏭️ Skipped
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='CANCELLED') }}"
+           class="admin-filter-btn
+           {% if selected_status == 'CANCELLED' %}active{% endif %}">
+            ❌ Cancelled
+        </a>
+
+    </section>
+
+
+    <!-- APPOINTMENT LIST -->
+
+    <section class="admin-section">
+
+
+        <div class="admin-list-header">
+
+            <h2>
+                {{ page_title }}
+            </h2>
+
+            <span class="admin-count">
+                {{ appointments|length }} Appointments
+            </span>
+
+        </div>
+
+
+        {% if appointments %}
+
+
+        <div class="admin-table-wrapper">
+
+            <table class="admin-table">
+
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            ID
+                        </th>
+
+                        <th>
+                            Token
+                        </th>
+
+                        <th>
+                            Patient
+                        </th>
+
+                        <th>
+                            Patient Phone
+                        </th>
+
+                        <th>
+                            Doctor
+                        </th>
+
+                        <th>
+                            Department
+                        </th>
+
+                        <th>
+                            Specialization
+                        </th>
+
+                        <th>
+                            Appointment Date
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+
+                {% for appointment in appointments %}
+
+
+                    <tr>
+
+
+                        <td>
+                            {{ appointment["appointment_id"] }}
+                        </td>
+
+
+                        <td>
+
+                            <strong class="admin-token">
+
+                                #{{ appointment["token_number"] }}
+
+                            </strong>
+
+                        </td>
+
+
+                        <td>
+
+                            <strong>
+                                {{ appointment["patient_name"] }}
+                            </strong>
+
+                            <br>
+
+                            <small>
+                                {{ appointment["patient_email"] }}
+                            </small>
+
+                        </td>
+
+
+                        <td>
+                            {{ appointment["patient_phone"] }}
+                        </td>
+
+
+                        <td>
+                            {{ appointment["doctor_name"] }}
+                        </td>
+
+
+                        <td>
+                            {{ appointment["department"] }}
+                        </td>
+
+
+                        <td>
+                            {{ appointment["specialization"] }}
+                        </td>
+
+
+                        <td>
+                            {{ appointment["appointment_date"] }}
+                        </td>
+
+
+                        <td>
+
+
+                            {% if appointment["status"] == "WAITING" %}
+
+                                <span class="appointment-status waiting">
+                                    WAITING
+                                </span>
+
+
+                            {% elif appointment["status"] == "CALLED" %}
+
+                                <span class="appointment-status called">
+                                    CALLED
+                                </span>
+
+
+                            {% elif appointment["status"] == "IN_PROGRESS" %}
+
+                                <span class="appointment-status progress">
+                                    IN PROGRESS
+                                </span>
+
+
+                            {% elif appointment["status"] == "COMPLETED" %}
+
+                                <span class="appointment-status completed">
+                                    COMPLETED
+                                </span>
+
+
+                            {% elif appointment["status"] == "SKIPPED" %}
+
+                                <span class="appointment-status skipped">
+                                    SKIPPED
+                                </span>
+
+
+                            {% elif appointment["status"] == "CANCELLED" %}
+
+                                <span class="appointment-status cancelled">
+                                    CANCELLED
+                                </span>
+
+                            {% endif %}
+
+
+                        </td>
+
+
+                    </tr>
+
+
+                {% endfor %}
+
+
+                </tbody>
+
+            </table>
+
+        </div>
+
+
+        {% else %}
+
+
+        <div class="empty-state">
+
+            <h3>
+                No appointments found
+            </h3>
+
+            <p>
+                There are no appointments matching this filter.
+            </p>
+
+        </div>
+
+
+        {% endif %}
+
+
+    </section>
+
+
+</main>
+
+
+</body>
+
+</html>

@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Reschedule Appointment</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('patient_dashboard') }}">
+            <button>Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">PATIENT PORTAL</p>
+
+        <h1>Reschedule Appointment</h1>
+
+        <p>
+            Choose a new date for your appointment.
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% for category, message in messages %}
+
+            <div class="message {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    <section class="appointment-card">
+
+        <div class="appointment-details">
+
+            <h2>
+                {{ appointment["doctor_name"] }}
+            </h2>
+
+            <p>
+                {{ appointment["specialization"] }}
+            </p>
+
+            <p>
+                <strong>Department:</strong>
+                {{ appointment["department"] }}
+            </p>
+
+            <p>
+                <strong>Current Date:</strong>
+                {{ appointment["appointment_date"] }}
+            </p>
+
+            <p>
+                <strong>Current Token:</strong>
+                {{ appointment["token_number"] }}
+            </p>
+
+            <p>
+                <strong>Status:</strong>
+                {{ appointment["status"] }}
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <section class="auth-card reschedule-card">
+
+        <h2>
+            Select New Date
+        </h2>
+
+        <form method="POST">
+
+            <label>
+                New Appointment Date
+            </label>
+
+            <input
+                type="date"
+                name="appointment_date"
+                min="{{ today }}"
+                value="{{ appointment['appointment_date'] }}"
+                required
+            >
+
+            <button
+                class="auth-button"
+                type="submit"
+            >
+                Confirm Reschedule
+            </button>
+
+        </form>
+
+        <p class="auth-footer">
+
+            <a href="{{ url_for('patient_appointments') }}">
+                ← Back to My Appointments
+            </a>
+
+        </p>
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

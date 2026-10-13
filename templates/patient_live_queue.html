@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Live Queue</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('patient_appointments') }}">
+            <button>My Appointments</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">LIVE QUEUE TRACKING</p>
+
+        <h1>Doctor Queue</h1>
+
+        <p id="doctorInfo">
+            {{ appointment["doctor_name"] }}
+            •
+            {{ appointment["specialization"] }}
+        </p>
+
+    </section>
+
+
+    <section class="live-queue-card">
+
+        <div class="live-status">
+
+            <span class="live-dot"></span>
+
+            <span>LIVE</span>
+
+        </div>
+
+
+        <div class="queue-info-grid">
+
+
+            <div class="queue-info-box">
+
+                <span class="queue-label">
+                    YOUR TOKEN
+                </span>
+
+                <strong id="yourToken">
+                    {{ appointment["token_number"] }}
+                </strong>
+
+            </div>
+
+
+            <div class="queue-info-box">
+
+                <span class="queue-label">
+                    NOW SERVING
+                </span>
+
+                <strong id="currentToken">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="queue-info-box">
+
+                <span class="queue-label">
+                    PATIENTS AHEAD
+                </span>
+
+                <strong id="patientsAhead">
+                    -
+                </strong>
+
+            </div>
+
+
+            <div class="queue-info-box">
+
+                <span class="queue-label">
+                    ESTIMATED WAIT
+                </span>
+
+                <strong id="estimatedWait">
+                    -
+                </strong>
+
+                <small>minutes</small>
+
+            </div>
+
+        </div>
+
+
+        <div class="queue-status-box">
+
+            <span class="queue-label">
+                APPOINTMENT STATUS
+            </span>
+
+            <strong id="appointmentStatus">
+                {{ appointment["status"] }}
+            </strong>
+
+        </div>
+
+
+        <div id="queueMessage" class="queue-message">
+            Connecting to live queue...
+        </div>
+
+
+        <div class="queue-refresh">
+
+            <span class="live-dot"></span>
+
+            Automatically updating every 3 seconds
+
+        </div>
+
+    </section>
+
+
+    <section class="appointment-summary">
+
+        <h2>Appointment Details</h2>
+
+        <p>
+            <strong>Doctor:</strong>
+            {{ appointment["doctor_name"] }}
+        </p>
+
+        <p>
+            <strong>Department:</strong>
+            {{ appointment["department"] }}
+        </p>
+
+        <p>
+            <strong>Specialization:</strong>
+            {{ appointment["specialization"] }}
+        </p>
+
+        <p>
+            <strong>Date:</strong>
+            {{ appointment["appointment_date"] }}
+        </p>
+
+    </section>
+
+</main>
+
+
+<script>
+
+const appointmentId = {{ appointment["id"] }};
+
+
+function updateQueue() {
+
+    fetch(`/patient/queue/${appointmentId}/status`)
+
+        .then(response => {
+
+            if (!response.ok) {
+                throw new Error("Unable to get queue status");
+            }
+
+            return response.json();
+
+        })
+
+        .then(data => {
+
+            if (data.error) {
+                throw new Error(data.error);
+            }
+
+
+            document.getElementById("yourToken").textContent =
+                data.your_token;
+
+
+            document.getElementById("currentToken").textContent =
+                data.current_token === 0
+                    ? "-"
+                    : data.current_token;
+
+
+            document.getElementById("patientsAhead").textContent =
+                data.patients_ahead;
+
+
+            document.getElementById("estimatedWait").textContent =
+                data.estimated_wait;
+
+
+            document.getElementById("appointmentStatus").textContent =
+                data.status;
+
+
+            const message =
+                document.getElementById("queueMessage");
+
+
+            if (data.status === "WAITING") {
+
+                if (data.patients_ahead === 0) {
+
+                    message.textContent =
+                        "You are next! Please be ready.";
+
+                } else {
+
+                    message.textContent =
+                        "Please wait. Your turn is coming.";
+
+                }
+
+            }
+
+            else if (data.status === "CALLED") {
+
+                message.textContent =
+                    "Your token has been called. Please go to the doctor.";
+
+            }
+
+            else if (data.status === "IN_PROGRESS") {
+
+                message.textContent =
+                    "Your consultation is currently in progress.";
+
+            }
+
+            else if (data.status === "COMPLETED") {
+
+                message.textContent =
+                    "Your appointment has been completed.";
+
+            }
+
+            else if (data.status === "SKIPPED") {
+
+                message.textContent =
+                    "Your appointment was skipped.";
+
+            }
+
+            else if (data.status === "CANCELLED") {
+
+                message.textContent =
+                    "Your appointment has been cancelled.";
+
+            }
+
+        })
+
+        .catch(error => {
+
+            console.error(error);
+
+            document.getElementById("queueMessage").textContent =
+                "Unable to update queue. Retrying...";
+
+        });
+
+}
+
+
+// Load immediately.
+updateQueue();
+
+
+// Automatically update every 3 seconds.
+setInterval(updateQueue, 3000);
+
+</script>
+
+
+</body>
+
+</html>

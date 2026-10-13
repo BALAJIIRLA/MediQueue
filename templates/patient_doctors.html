@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Find Doctor</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('patient_dashboard') }}">
+            <button>Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">PATIENT PORTAL</p>
+
+        <h1>Find a Doctor</h1>
+
+        <p>
+            Select an approved doctor to book your appointment.
+        </p>
+
+    </section>
+
+
+    <section class="doctor-grid">
+
+        {% if doctors %}
+
+            {% for doctor in doctors %}
+
+            <div class="doctor-card">
+
+                <div class="doctor-avatar">
+                    👨‍⚕️
+                </div>
+
+                <h2>
+                    {{ doctor["name"] }}
+                </h2>
+
+                <p class="doctor-specialization">
+                    {{ doctor["specialization"] }}
+                </p>
+
+                <div class="doctor-info">
+
+                    <p>
+                        <strong>Department:</strong>
+                        {{ doctor["department"] }}
+                    </p>
+
+                    <p>
+                        <strong>Qualification:</strong>
+                        {{ doctor["qualification"] }}
+                    </p>
+
+                    <p>
+                        <strong>Experience:</strong>
+                        {{ doctor["experience"] }} years
+                    </p>
+
+                </div>
+
+                <a href="{{ url_for(
+                    'book_appointment',
+                    doctor_id=doctor['id']
+                ) }}">
+
+                    <button class="primary-btn">
+                        Book Appointment
+                    </button>
+
+                </a>
+
+            </div>
+
+            {% endfor %}
+
+        {% else %}
+
+            <div class="empty-state">
+
+                <h2>No doctors available</h2>
+
+                <p>
+                    There are currently no approved doctors.
+                </p>
+
+            </div>
+
+        {% endif %}
+
+    </section>
+
+</main>
+
+</body>
+
+</html>

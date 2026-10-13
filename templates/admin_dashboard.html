@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - Admin Dashboard</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">ADMIN PANEL</p>
+
+        <h1>
+            Welcome, {{ name }} 🛡️
+        </h1>
+
+        <p>
+            Manage doctor registrations and hospital accounts.
+        </p>
+
+    </section>
+
+
+    <!-- =====================================================
+         HOSPITAL STATISTICS
+         ===================================================== -->
+
+    <section class="admin-stats-grid">
+
+        <a href="{{ url_for('admin_patients') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+
+                <div class="admin-stat-icon">👥</div>
+
+                <span>Total Patients</span>
+
+                <strong>{{ total_patients }}</strong>
+
+                <small>View all patients →</small>
+
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_doctors') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+
+                <div class="admin-stat-icon">
+                    👨‍⚕️
+                </div>
+
+                <span>
+                    Total Doctors
+                </span>
+
+                <strong>
+                    {{ total_doctors }}
+                </strong>
+
+                <small>
+                    View all doctors →
+                </small>
+
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_doctors', status='approved') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">🟢</div>
+                <span>Approved Doctors</span>
+                <strong>{{ approved_doctors }}</strong>
+                <small>Manage approved doctors →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_doctors', status='pending') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">🟡</div>
+                <span>Pending Doctors</span>
+                <strong>{{ pending_doctors_count }}</strong>
+                <small>Review applications →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">📅</div>
+                <span>Today's Appointments</span>
+                <strong>{{ todays_appointments }}</strong>
+                <small>View today's appointments →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='WAITING') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">⏳</div>
+                <span>Waiting</span>
+                <strong>{{ waiting_appointments }}</strong>
+                <small>View waiting patients →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='CALLED') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">📞</div>
+                <span>Called</span>
+                <strong>{{ called_appointments }}</strong>
+                <small>View called patients →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='IN_PROGRESS') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">🩺</div>
+                <span>In Progress</span>
+                <strong>{{ in_progress_appointments }}</strong>
+                <small>View active consultations →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='COMPLETED') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">✅</div>
+                <span>Completed</span>
+                <strong>{{ completed_appointments }}</strong>
+                <small>View completed patients →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='SKIPPED') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">⏭️</div>
+                <span>Skipped</span>
+                <strong>{{ skipped_appointments }}</strong>
+                <small>View skipped patients →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_appointments', status='CANCELLED') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">❌</div>
+                <span>Cancelled</span>
+                <strong>{{ cancelled_appointments }}</strong>
+                <small>View cancelled appointments →</small>
+            </div>
+
+        </a>
+
+
+        <a href="{{ url_for('admin_doctors', status='blocked') }}"
+           class="admin-stat-link">
+
+            <div class="admin-stat-card">
+                <div class="admin-stat-icon">🚫</div>
+                <span>Blocked Doctors</span>
+                <strong>{{ blocked_doctors }}</strong>
+                <small>Manage blocked doctors →</small>
+            </div>
+
+        </a>
+
+    </section>
+
+
+    
+
+<div class="admin-section admin-reports-card">
+
+    <div class="admin-list-header">
+
+        <div>
+            <h2>📈 Hospital Analytics</h2>
+
+            <p>
+                Analyze queue efficiency, doctor performance,
+                appointment trends and hospital performance.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_analytics') }}"
+           class="primary-btn">
+            Open Analytics →
+        </a>
+
+    </div>
+
+</div>
+
+<div class="admin-section admin-reports-card">
+
+    <div class="admin-list-header">
+
+        <div>
+            <h2>📊 Reports & History</h2>
+
+            <p>
+                View appointment history, doctor statistics,
+                department statistics and hospital performance.
+            </p>
+        </div>
+
+        <a href="{{ url_for('admin_reports') }}"
+           class="primary-btn">
+            Open Reports →
+        </a>
+
+    </div>
+
+</div>
+
+<div class="admin-section">
+
+        <h2>Pending Doctor Registrations</h2>
+
+        {% if pending_doctors %}
+
+            <div class="doctor-list">
+
+                {% for doctor in pending_doctors %}
+
+                <div class="doctor-request">
+
+                    <div>
+                        <h3>{{ doctor["name"] }}</h3>
+
+                        <p>
+                            <strong>Department:</strong>
+                            {{ doctor["department"] }}
+                        </p>
+
+                        <p>
+                            <strong>Specialization:</strong>
+                            {{ doctor["specialization"] }}
+                        </p>
+
+                        <p>
+                            <strong>Qualification:</strong>
+                            {{ doctor["qualification"] }}
+                        </p>
+
+                        <p>
+                            <strong>Experience:</strong>
+                            {{ doctor["experience"] }} years
+                        </p>
+
+                        <p>
+                            <strong>Email:</strong>
+                            {{ doctor["email"] }}
+                        </p>
+                    </div>
+
+                    <form method="POST"
+                          action="{{ url_for(
+                              'approve_doctor',
+                              doctor_id=doctor['doctor_id']
+                          ) }}">
+
+                        <button class="primary-btn" type="submit">
+                            Approve Doctor
+                        </button>
+
+                    </form>
+
+                </div>
+
+                {% endfor %}
+
+            </div>
+
+        {% else %}
+
+            <div class="empty-state">
+                <h3>No pending doctor registrations</h3>
+                <p>
+                    New doctor applications will appear here.
+                </p>
+            </div>
+
+        {% endif %}
+
+    </div>
+
+</main>
+
+</body>
+</html>

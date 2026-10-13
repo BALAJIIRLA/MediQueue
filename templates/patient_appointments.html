@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1.0">
+
+    <title>MediQueue - My Appointments</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+</head>
+
+<body>
+
+<header class="navbar">
+
+    <div class="logo">
+        Medi<span>Queue</span>
+    </div>
+
+    <div class="nav-buttons">
+
+        <a href="{{ url_for('patient_dashboard') }}">
+            <button>Dashboard</button>
+        </a>
+
+        <a href="{{ url_for('logout') }}">
+            <button>Logout</button>
+        </a>
+
+    </div>
+
+</header>
+
+
+<main class="dashboard">
+
+    <section class="dashboard-header">
+
+        <p class="tagline">PATIENT PORTAL</p>
+
+        <h1>My Appointments</h1>
+
+        <p>
+            View your appointment tokens and status.
+        </p>
+
+    </section>
+
+
+    {% with messages = get_flashed_messages(
+        with_categories=true
+    ) %}
+
+        {% for category, message in messages %}
+
+            <div class="message {{ category }}">
+                {{ message }}
+            </div>
+
+        {% endfor %}
+
+    {% endwith %}
+
+
+    {% if appointments %}
+
+        <section class="appointment-list">
+
+            {% for appointment in appointments %}
+
+            <div class="appointment-card">
+
+                <div class="token-box">
+
+                    <span>
+                        TOKEN
+                    </span>
+
+                    <strong>
+                        {{ appointment["token_number"] }}
+                    </strong>
+
+                </div>
+
+
+                <div class="appointment-details">
+
+                    <h2>
+                        {{ appointment["doctor_name"] }}
+                    </h2>
+
+                    <p>
+                        {{ appointment["specialization"] }}
+                    </p>
+
+                    <p>
+                        <strong>Department:</strong>
+                        {{ appointment["department"] }}
+                    </p>
+
+                    <p>
+                        <strong>Date:</strong>
+                        {{ appointment["appointment_date"] }}
+                    </p>
+
+                    <p>
+                        <strong>Status:</strong>
+                        {{ appointment["status"] }}
+                    </p>
+
+                    {% if appointment["status"] in
+                        ["WAITING", "CALLED", "IN_PROGRESS"] %}
+
+                        <a href="{{ url_for(
+                            'patient_live_queue',
+                            appointment_id=appointment['id']
+                        ) }}">
+                            <button class="primary-btn">
+                                Track Live Queue
+                            </button>
+                        </a>
+
+                    {% endif %}
+
+                    {% if appointment["status"] in ["WAITING", "CALLED"] %}
+
+                        <a href="{{ url_for(
+                            'patient_reschedule_appointment',
+                            appointment_id=appointment['id']
+                        ) }}">
+                            <button
+                                type="button"
+                                class="reschedule-appointment-btn">
+                                Reschedule
+                            </button>
+                        </a>
+
+                    {% endif %}
+
+
+                    {% if appointment["status"] in ["WAITING", "CALLED"] %}
+
+                        <form method="POST"
+                              action="{{ url_for('patient_cancel_appointment', appointment_id=appointment['id']) }}"
+                              class="appointment-cancel-form"
+                              onsubmit="return confirm('Are you sure you want to cancel this appointment?');">
+
+                            <button type="submit"
+                                    class="cancel-appointment-btn">
+                                Cancel Appointment
+                            </button>
+
+                        </form>
+
+                    {% endif %}
+
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </section>
+
+    {% else %}
+
+        <div class="empty-state">
+
+            <h2>No appointments yet</h2>
+
+            <p>
+                Find a doctor and book your first appointment.
+            </p>
+
+            <br>
+
+            <a href="{{ url_for('patient_doctors') }}">
+                <button class="primary-btn">
+                    Find Doctor
+                </button>
+            </a>
+
+        </div>
+
+    {% endif %}
+
+</main>
+
+</body>
+
+</html>
