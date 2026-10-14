@@ -10,3 +10,6 @@ __pycache__/
 # Automated test artifacts
 .pytest_cache/
 test_mediqueue.db
+
+# Local admin helper — do not commit
+/create_admin.py
