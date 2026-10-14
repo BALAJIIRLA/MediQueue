@@ -6074,3 +6074,23 @@ footer {
     }
 }
 
+
+/* MediQueue readability fix — dashboard cards */
+.admin-dashboard .card h1,
+.admin-dashboard .card h2,
+.admin-dashboard .card h3,
+.admin-dashboard .card h4,
+.admin-dashboard .stat-card h1,
+.admin-dashboard .stat-card h2,
+.admin-dashboard .stat-card h3,
+.admin-dashboard .dashboard-card h1,
+.admin-dashboard .dashboard-card h2,
+.admin-dashboard .dashboard-card h3,
+.admin-dashboard .panel h1,
+.admin-dashboard .panel h2,
+.admin-dashboard .panel h3 {
+    color: #14243a !important;
+    -webkit-text-fill-color: #14243a !important;
+    opacity: 1 !important;
+}
+
