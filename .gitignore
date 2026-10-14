@@ -6,3 +6,7 @@ __pycache__/
 *.backup
 *.before_*
 .env
+
+# Automated test artifacts
+.pytest_cache/
+test_mediqueue.db
