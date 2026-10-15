@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Doctor Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mq-admin-detail">
+<header class="navbar">
+    <div class="logo">Medi<span>Queue</span></div>
+    <div class="nav-buttons">
+        <a href="{{ url_for('admin_reports') }}" class="primary-btn">← Reports & History</a>
+        <a href="{{ url_for('admin_dashboard') }}"><button>Dashboard</button></a>
+        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+    </div>
+</header>
+<main class="dashboard">
+    <section class="dashboard-header">
+        <p class="tagline">HOSPITAL REPORTS</p>
+        <h1>Doctor-wise Statistics 👨‍⚕️</h1>
+        <p>Appointment totals and outcomes for each doctor.</p>
+    </section>
+    <section class="admin-section">
+        {% if doctor_stats %}
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead><tr><th>Doctor</th><th>Department</th><th>Total</th><th>Completed</th><th>Skipped</th></tr></thead>
+                <tbody>
+                {% for doctor in doctor_stats %}
+                    <tr>
+                        <td><strong>{{ doctor["doctor_name"] }}</strong></td>
+                        <td>{{ doctor["department"] }}</td>
+                        <td>{{ doctor["total"] }}</td>
+                        <td>{{ doctor["completed"] or 0 }}</td>
+                        <td>{{ doctor["skipped"] or 0 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><h3>No doctor statistics available</h3></div>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

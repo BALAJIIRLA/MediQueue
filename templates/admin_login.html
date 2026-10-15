@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Admin Login</title>
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mq-admin-login">
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="auth-logo">Medi<span>Queue</span></div>
+        <h1>Admin Login</h1>
+        <p class="auth-subtitle">Sign in to manage MediQueue.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="message {{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <form method="POST">
+            <label for="email">Admin Email</label>
+            <input id="email" type="email" name="email"
+                   placeholder="Enter admin email" autocomplete="username" required>
+
+            <label for="password">Password</label>
+            <input id="password" type="password" name="password"
+                   placeholder="Enter password"
+                   autocomplete="current-password" required>
+
+            <button class="auth-button" type="submit">Sign In</button>
+        </form>
+
+        <p class="auth-footer">
+            <a href="{{ url_for('login') }}">Patient Login</a>
+        </p>
+        <p class="auth-footer">
+            <a href="{{ url_for('home') }}">&#8592; Back to Home</a>
+        </p>
+    </div>
+</div>
+</body>
+</html>

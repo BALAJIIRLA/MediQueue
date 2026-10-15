@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Department Performance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mq-admin-detail">
+<header class="topbar">
+    <div class="logo">MediQueue</div>
+    <div class="topbar-right">
+        <a href="{{ url_for('admin_analytics') }}" class="secondary-btn">Analytics</a>
+        <a href="{{ url_for('admin_dashboard') }}" class="secondary-btn">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </div>
+</header>
+
+<main class="admin-container performance-page">
+    <section class="page-header">
+        <div>
+            <h1>🏥 Department Performance</h1>
+            <p>Appointment totals and completion rates by department.</p>
+        </div>
+    </section>
+
+    <section class="department-grid performance-department-grid">
+        {% for department in department_stats %}
+        <div class="department-card">
+            <div class="department-header">
+                <h3>{{ department["department"] or "Unassigned" }}</h3>
+                <strong>{{ department["completion_rate"] }}%</strong>
+            </div>
+            <div class="department-progress">
+                <div class="department-progress-fill" style="width: {{ department['completion_rate'] }}%;"></div>
+            </div>
+            <div class="department-stats">
+                <span>Total: <strong>{{ department["total"] or 0 }}</strong></span>
+                <span>Completed: <strong>{{ department["completed"] or 0 }}</strong></span>
+                <span>Skipped: <strong>{{ department["skipped"] or 0 }}</strong></span>
+                <span>Cancelled: <strong>{{ department["cancelled"] or 0 }}</strong></span>
+            </div>
+        </div>
+        {% else %}
+        <div class="analytics-empty">No department statistics available.</div>
+        {% endfor %}
+    </section>
+
+    <div class="analytics-footer">
+        <a href="{{ url_for('admin_analytics') }}" class="secondary-btn">← Back to Analytics</a>
+        <a href="{{ url_for('admin_doctor_performance') }}" class="primary-btn">← Doctor Performance</a>
+    </div>
+</main>
+</body>
+</html>

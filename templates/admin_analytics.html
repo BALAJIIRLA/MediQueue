@@ -11,7 +11,7 @@
           href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
-<body>
+<body class="mq-admin-analytics">
 
 <header class="topbar">
 
@@ -53,10 +53,7 @@
 
             <h1>📈 Hospital Analytics</h1>
 
-            <p>
-                Monitor hospital performance, queue efficiency,
-                doctor productivity and appointment trends.
-            </p>
+
 
         </div>
 
@@ -136,9 +133,7 @@
 
                 <h2>🏥 Hospital Performance</h2>
 
-                <p>
-                    Overall appointment and queue statistics.
-                </p>
+
 
             </div>
 
@@ -348,451 +343,68 @@
 
 
     <!-- =================================================
-         STATUS DISTRIBUTION
+         PERFORMANCE PAGES
     ================================================== -->
 
     <section class="analytics-section">
-
         <div class="section-title-row">
-
             <div>
-
-                <h2>📊 Appointment Status Distribution</h2>
-
-                <p>
-                    Current distribution of all appointments.
-                </p>
-
+                <h2>📊 Performance Details</h2>
+                <p>Open a separate page to view detailed performance data.</p>
             </div>
-
         </div>
 
+        <div class="performance-nav-grid">
+            <a class="performance-nav-card"
+               href="{{ url_for('admin_daily_appointment_trend') }}">
+                <span class="performance-nav-icon">📈</span>
+                <span class="performance-nav-copy">
+                    <strong>Daily Appointment Trend</strong>
+                    <small>Review appointment totals and outcomes by date.</small>
+                </span>
+                <span class="performance-nav-arrow">View details →</span>
+            </a>
 
-        <div class="status-list">
+            <a class="performance-nav-card"
+               href="{{ url_for('admin_top_performing_doctors') }}">
+                <span class="performance-nav-icon">🏆</span>
+                <span class="performance-nav-copy">
+                    <strong>Top Performing Doctors</strong>
+                    <small>Compare approved doctors and completion rates.</small>
+                </span>
+                <span class="performance-nav-arrow">View details →</span>
+            </a>
 
-            {% for item in status_stats %}
+            <a class="performance-nav-card"
+               href="{{ url_for('admin_appointment_status_distribution') }}">
+                <span class="performance-nav-icon">📊</span>
+                <span class="performance-nav-copy">
+                    <strong>Appointment Status Distribution</strong>
+                    <small>View appointment counts and percentages by status.</small>
+                </span>
+                <span class="performance-nav-arrow">View details →</span>
+            </a>
 
-                {% set status = item["status"] %}
-                {% set count = item["total"] %}
+            <a class="performance-nav-card"
+               href="{{ url_for('admin_doctor_performance') }}">
+                <span class="performance-nav-icon">👨‍⚕️</span>
+                <span class="performance-nav-copy">
+                    <strong>Doctor Performance</strong>
+                    <small>Compare appointments and completion rates by doctor.</small>
+                </span>
+                <span class="performance-nav-arrow">View details →</span>
+            </a>
 
-                {% if total_appointments > 0 %}
-                    {% set percentage =
-                        ((count / total_appointments) * 100)|round(1)
-                    %}
-                {% else %}
-                    {% set percentage = 0 %}
-                {% endif %}
-
-
-                <div class="status-row">
-
-                    <div class="status-info">
-
-                        <strong>
-                            {{ status.replace("_", " ") }}
-                        </strong>
-
-                        <span>
-                            {{ count }} appointments
-                        </span>
-
-                    </div>
-
-
-                    <div class="status-bar">
-
-                        <div
-                            class="status-bar-fill status-{{ status|lower }}"
-                            style="width: {{ percentage }}%;">
-                        </div>
-
-                    </div>
-
-
-                    <strong class="status-percent">
-                        {{ percentage }}%
-                    </strong>
-
-                </div>
-
-            {% else %}
-
-                <div class="analytics-empty">
-                    No appointment data available.
-                </div>
-
-            {% endfor %}
-
+            <a class="performance-nav-card"
+               href="{{ url_for('admin_department_performance') }}">
+                <span class="performance-nav-icon">🏥</span>
+                <span class="performance-nav-copy">
+                    <strong>Department Performance</strong>
+                    <small>Compare totals and completed appointments by department.</small>
+                </span>
+                <span class="performance-nav-arrow">View details →</span>
+            </a>
         </div>
-
-    </section>
-
-
-    <!-- =================================================
-         DAILY TREND
-    ================================================== -->
-
-    <section class="analytics-section">
-
-        <div class="section-title-row">
-
-            <div>
-
-                <h2>📈 Daily Appointment Trend</h2>
-
-                <p>
-                    Appointment activity for the latest 14 days
-                    containing appointments.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="trend-list">
-
-            {% for day in daily_stats %}
-
-                {% set total = day["total"] or 0 %}
-                {% set completed_day = day["completed"] or 0 %}
-
-                {% if total_appointments > 0 %}
-                    {% set bar_width =
-                        ((total / total_appointments) * 100)|round(1)
-                    %}
-                {% else %}
-                    {% set bar_width = 0 %}
-                {% endif %}
-
-
-                <div class="trend-row">
-
-                    <div class="trend-date">
-
-                        <strong>
-                            {{ day["appointment_date"] }}
-                        </strong>
-
-                        <span>
-                            {{ completed_day }} completed
-                        </span>
-
-                    </div>
-
-
-                    <div class="trend-bar">
-
-                        <div
-                            class="trend-bar-fill"
-                            style="width: {{ bar_width }}%;">
-                        </div>
-
-                    </div>
-
-
-                    <strong class="trend-total">
-                        {{ total }}
-                    </strong>
-
-                </div>
-
-            {% else %}
-
-                <div class="analytics-empty">
-                    No appointment history available.
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         TOP DOCTORS
-    ================================================== -->
-
-    <section class="analytics-section">
-
-        <div class="section-title-row">
-
-            <div>
-
-                <h2>🏆 Top Performing Doctors</h2>
-
-                <p>
-                    Doctors ranked by completion performance.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="ranking-list">
-
-            {% for doctor in top_doctors %}
-
-                <div class="ranking-card">
-
-                    <div class="ranking-number">
-                        {{ loop.index }}
-                    </div>
-
-
-                    <div class="ranking-main">
-
-                        <h3>
-                            {{ doctor["doctor_name"] }}
-                        </h3>
-
-                        <p>
-                            {{ doctor["department"] }}
-                            •
-                            {{ doctor["specialization"] }}
-                        </p>
-
-                    </div>
-
-
-                    <div class="ranking-stats">
-
-                        <strong>
-                            {{ doctor["completion_rate"] }}%
-                        </strong>
-
-                        <span>
-                            completion
-                        </span>
-
-                    </div>
-
-                </div>
-
-            {% else %}
-
-                <div class="analytics-empty">
-                    No doctor statistics available.
-                </div>
-
-            {% endfor %}
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         DOCTOR PERFORMANCE
-    ================================================== -->
-
-    <section class="analytics-section">
-
-        <div class="section-title-row">
-
-            <div>
-
-                <h2>👨‍⚕️ Doctor Performance</h2>
-
-                <p>
-                    Detailed appointment performance by doctor.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="analytics-table-wrapper">
-
-            <table class="analytics-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>Doctor</th>
-                        <th>Department</th>
-                        <th>Total</th>
-                        <th>Completed</th>
-                        <th>Skipped</th>
-                        <th>Cancelled</th>
-                        <th>Completion</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                    {% for doctor in doctor_stats %}
-
-                        <tr>
-
-                            <td>
-                                <strong>
-                                    {{ doctor["doctor_name"] }}
-                                </strong>
-                            </td>
-
-                            <td>
-                                {{ doctor["department"] }}
-                            </td>
-
-                            <td>
-                                {{ doctor["total"] or 0 }}
-                            </td>
-
-                            <td>
-                                {{ doctor["completed"] or 0 }}
-                            </td>
-
-                            <td>
-                                {{ doctor["skipped"] or 0 }}
-                            </td>
-
-                            <td>
-                                {{ doctor["cancelled"] or 0 }}
-                            </td>
-
-                            <td>
-
-                                <div class="mini-progress">
-
-                                    <div
-                                        class="mini-progress-fill"
-                                        style="width: {{ doctor['completion_rate'] }}%;">
-                                    </div>
-
-                                </div>
-
-                                <strong>
-                                    {{ doctor["completion_rate"] }}%
-                                </strong>
-
-                            </td>
-
-                        </tr>
-
-                    {% else %}
-
-                        <tr>
-
-                            <td colspan="7"
-                                class="table-empty">
-                                No doctor data available.
-                            </td>
-
-                        </tr>
-
-                    {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <!-- =================================================
-         DEPARTMENT PERFORMANCE
-    ================================================== -->
-
-    <section class="analytics-section">
-
-        <div class="section-title-row">
-
-            <div>
-
-                <h2>🏥 Department Performance</h2>
-
-                <p>
-                    Appointment performance across departments.
-                </p>
-
-            </div>
-
-        </div>
-
-
-        <div class="department-grid">
-
-            {% for department in department_stats %}
-
-                <div class="department-card">
-
-                    <div class="department-header">
-
-                        <h3>
-                            {{ department["department"] }}
-                        </h3>
-
-                        <strong>
-                            {{ department["completion_rate"] }}%
-                        </strong>
-
-                    </div>
-
-
-                    <div class="department-progress">
-
-                        <div
-                            class="department-progress-fill"
-                            style="width: {{ department['completion_rate'] }}%;">
-                        </div>
-
-                    </div>
-
-
-                    <div class="department-stats">
-
-                        <span>
-                            Total:
-                            <strong>
-                                {{ department["total"] or 0 }}
-                            </strong>
-                        </span>
-
-                        <span>
-                            Completed:
-                            <strong>
-                                {{ department["completed"] or 0 }}
-                            </strong>
-                        </span>
-
-                        <span>
-                            Skipped:
-                            <strong>
-                                {{ department["skipped"] or 0 }}
-                            </strong>
-                        </span>
-
-                        <span>
-                            Cancelled:
-                            <strong>
-                                {{ department["cancelled"] or 0 }}
-                            </strong>
-                        </span>
-
-                    </div>
-
-                </div>
-
-            {% else %}
-
-                <div class="analytics-empty">
-                    No department statistics available.
-                </div>
-
-            {% endfor %}
-
-        </div>
-
     </section>
 
 
@@ -815,6 +427,8 @@
     </div>
 
 </main>
+
+
 
 </body>
 </html>

@@ -1,142 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-
     <meta charset="UTF-8">
-
-    <meta name="viewport"
-          content="width=device-width, initial-scale=1.0">
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MediQueue - Patient Dashboard</title>
-
-    <link rel="stylesheet"
-          href="{{ url_for('static', filename='css/style.css') }}">
-
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
+<body class="mq-patient-premium-ui">
 
-<body>
-
-<header class="navbar">
-
-    <div class="logo">
-        Medi<span>Queue</span>
-    </div>
-
+<header class="navbar mq-patient-navbar">
+    <div class="logo">Medi<span>Queue</span></div>
     <div class="nav-buttons">
-
-        <a href="{{ url_for('patient_profile') }}">
-            <button>My Profile</button>
-        </a>
-
-        <a href="{{ url_for('logout') }}">
-            <button>Logout</button>
-        </a>
-
+        <a href="{{ url_for('patient_profile') }}"><button>My Profile</button></a>
+        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
     </div>
-
 </header>
 
-
-<main class="dashboard">
-
-    <section class="dashboard-header">
-
-        <p class="tagline">PATIENT DASHBOARD</p>
-
-        <h1>
-            Welcome, {{ name }} 👋
-        </h1>
-
-        <p>
-            Manage your hospital appointments and queue.
-        </p>
-
+<main class="dashboard mq-patient-dashboard">
+    <section class="dashboard-header mq-patient-welcome">
+        <p class="tagline">PATIENT PORTAL</p>
+        <h1>Welcome, {{ name }} 👋</h1>
+        <p>Your healthcare journey, organized in one place.</p>
+        <div class="mq-patient-welcome-line"></div>
     </section>
 
+    <section class="dashboard-cards mq-patient-cards">
 
-    <section class="dashboard-cards">
+        <article class="dashboard-card mq-patient-card mq-card-doctors">
+            <div class="dashboard-icon">🩺</div>
+            <span class="mq-patient-card-label">HEALTHCARE</span>
+            <h2>Find Doctors</h2>
+            <p>Explore approved doctors and choose the right specialist for your needs.</p>
+            <a class="mq-patient-action" href="{{ url_for('patient_doctors') }}">Explore Doctors <span>→</span></a>
+        </article>
 
+        <article class="dashboard-card mq-patient-card mq-card-appointments">
+            <div class="dashboard-icon">🎫</div>
+            <span class="mq-patient-card-label">YOUR VISITS</span>
+            <h2>My Appointments</h2>
+            <p>Review your bookings, appointment tokens, and current status.</p>
+            <a class="mq-patient-action" href="{{ url_for('patient_appointments') }}">View Appointments <span>→</span></a>
+        </article>
 
-        <div class="dashboard-card">
+        <article class="dashboard-card mq-patient-card mq-card-queue">
+            <div class="dashboard-icon">📡</div>
+            <span class="mq-patient-card-label">LIVE TRACKING</span>
+            <h2>My Queue</h2>
+            <p>Check your queue information and follow your place in line.</p>
+            <a class="mq-patient-action" href="{{ url_for('patient_my_queue') }}">Track My Queue <span>→</span></a>
+        </article>
 
-            <div class="dashboard-icon">
-                👨‍⚕️
-            </div>
+        <article class="dashboard-card mq-patient-card mq-card-profile">
+            <div class="dashboard-icon">👤</div>
+            <span class="mq-patient-card-label">YOUR DETAILS</span>
+            <h2>My Profile</h2>
+            <p>View or update your personal profile information.</p>
+            <a class="mq-patient-action" href="{{ url_for('patient_profile') }}">Open Profile <span>→</span></a>
+        </article>
 
-            <h2>
-                Find Doctor
-            </h2>
+        <article class="dashboard-card mq-patient-card mq-card-notifications">
+            <div class="dashboard-icon">🔔</div>
+            <span class="mq-patient-card-label">UPDATES</span>
+            <h2>Notifications</h2>
+            <p>Visit your notifications page to check available updates.</p>
+            <a class="mq-patient-action" href="{{ url_for('patient_notifications') }}">View Notifications <span>→</span></a>
+        </article>
 
-            <p>
-                Find an approved doctor and book an appointment.
-            </p>
-
-            <a href="{{ url_for('patient_doctors') }}">
-
-                <button class="primary-btn">
-                    Find Doctor
-                </button>
-
-            </a>
-
-        </div>
-
-
-        <div class="dashboard-card">
-
-            <div class="dashboard-icon">
-                🎫
-            </div>
-
-            <h2>
-                My Appointments
-            </h2>
-
-            <p>
-                View your appointment tokens and status.
-            </p>
-
-            <a href="{{ url_for('patient_appointments') }}">
-
-                <button class="secondary-btn">
-                    View Appointments
-                </button>
-
-            </a>
-
-        </div>
-
-
-        <div class="dashboard-card">
-
-            <div class="dashboard-icon">
-                📊
-            </div>
-
-            <h2>
-                My Queue
-            </h2>
-
-            <p>
-                Track your position in the hospital queue.
-            </p>
-
-            <a href="{{ url_for('patient_my_queue') }}">
-
-                <button class="secondary-btn">
-                    Track Live Queue
-                </button>
-
-            </a>
-
-        </div>
-
+        <article class="dashboard-card mq-patient-card mq-card-book">
+            <div class="dashboard-icon">🗓️</div>
+            <span class="mq-patient-card-label">NEXT STEP</span>
+            <h2>Book a Visit</h2>
+            <p>Ready for a consultation? Find a doctor and start a booking.</p>
+            <a class="mq-patient-action" href="{{ url_for('patient_doctors') }}">Book Appointment <span>→</span></a>
+        </article>
 
     </section>
-
 </main>
 
 </body>
-
 </html>

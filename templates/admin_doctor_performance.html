@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Doctor Performance</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mq-admin-detail">
+<header class="topbar">
+    <div class="logo">MediQueue</div>
+    <div class="topbar-right">
+        <a href="{{ url_for('admin_analytics') }}" class="secondary-btn">Analytics</a>
+        <a href="{{ url_for('admin_dashboard') }}" class="secondary-btn">Dashboard</a>
+        <a href="{{ url_for('logout') }}" class="logout-btn">Logout</a>
+    </div>
+</header>
+
+<main class="admin-container performance-page">
+    <section class="page-header">
+        <div>
+            <h1>👨‍⚕️ Doctor Performance</h1>
+            <p>Appointment totals and completion rates for approved doctors.</p>
+        </div>
+    </section>
+
+    <section class="analytics-section">
+        <div class="analytics-table-wrapper">
+            <table class="analytics-table">
+                <thead>
+                    <tr>
+                        <th>Doctor</th>
+                        <th>Department</th>
+                        <th>Specialization</th>
+                        <th>Total</th>
+                        <th>Completed</th>
+                        <th>Skipped</th>
+                        <th>Cancelled</th>
+                        <th>Completion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for doctor in doctor_stats %}
+                    <tr>
+                        <td><strong>{{ doctor["doctor_name"] }}</strong></td>
+                        <td>{{ doctor["department"] or "—" }}</td>
+                        <td>{{ doctor["specialization"] or "—" }}</td>
+                        <td>{{ doctor["total"] or 0 }}</td>
+                        <td>{{ doctor["completed"] or 0 }}</td>
+                        <td>{{ doctor["skipped"] or 0 }}</td>
+                        <td>{{ doctor["cancelled"] or 0 }}</td>
+                        <td>
+                            <div class="mini-progress">
+                                <div class="mini-progress-fill" style="width: {{ doctor['completion_rate'] }}%;"></div>
+                            </div>
+                            <strong>{{ doctor["completion_rate"] }}%</strong>
+                        </td>
+                    </tr>
+                {% else %}
+                    <tr><td colspan="8" class="table-empty">No approved doctor data available.</td></tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <div class="analytics-footer">
+        <a href="{{ url_for('admin_analytics') }}" class="secondary-btn">← Back to Analytics</a>
+        <a href="{{ url_for('admin_department_performance') }}" class="primary-btn">Department Performance →</a>
+    </div>
+</main>
+</body>
+</html>

@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Appointment History</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mq-admin-history">
+<header class="navbar">
+    <div class="logo">Medi<span>Queue</span></div>
+    <div class="nav-buttons">
+        <a href="{{ url_for('admin_reports') }}" class="primary-btn">← Reports & History</a>
+        <a href="{{ url_for('admin_dashboard') }}"><button>Dashboard</button></a>
+        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+    </div>
+</header>
+<main class="dashboard">
+    <section class="dashboard-header">
+        <p class="tagline">HOSPITAL RECORDS</p>
+        <h1>Appointment History 📋</h1>
+        <p>Search appointments by date and status.</p>
+    </section>
+
+    <section class="admin-section">
+        <form method="GET" class="report-filter-form">
+            <div>
+                <label for="date">Appointment Date</label>
+                <input id="date" type="date" name="date" value="{{ selected_date }}">
+            </div>
+            <div>
+                <label for="status">Status</label>
+                <select id="status" name="status">
+                    <option value="">All Statuses</option>
+                    {% for value, label in [
+                        ('WAITING', 'Waiting'),
+                        ('CALLED', 'Called'),
+                        ('IN_PROGRESS', 'In Progress'),
+                        ('COMPLETED', 'Completed'),
+                        ('SKIPPED', 'Skipped'),
+                        ('CANCELLED', 'Cancelled')
+                    ] %}
+                    <option value="{{ value }}" {% if selected_status == value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <button type="submit" class="primary-btn">Apply Filter</button>
+            <a href="{{ url_for('admin_appointment_history') }}" class="secondary-btn">Clear</a>
+        </form>
+
+        {% if appointments %}
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead>
+                    <tr>
+                        <th>ID</th><th>Date</th><th>Token</th><th>Patient</th>
+                        <th>Doctor</th><th>Department</th><th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment["appointment_id"] }}</td>
+                        <td>{{ appointment["appointment_date"] }}</td>
+                        <td><strong>#{{ appointment["token_number"] }}</strong></td>
+                        <td>{{ appointment["patient_name"] }}</td>
+                        <td>{{ appointment["doctor_name"] }}</td>
+                        <td>{{ appointment["department"] }}</td>
+                        <td>
+                            <span class="appointment-status
+                                {% if appointment['status'] == 'WAITING' %}waiting
+                                {% elif appointment['status'] == 'CALLED' %}called
+                                {% elif appointment['status'] == 'IN_PROGRESS' %}progress
+                                {% elif appointment['status'] == 'COMPLETED' %}completed
+                                {% elif appointment['status'] == 'SKIPPED' %}skipped
+                                {% else %}cancelled{% endif %}">
+                                {{ appointment["status"] }}
+                            </span>
+                        </td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <h3>No appointments found</h3>
+            <p>Try changing the date or status filter.</p>
+        </div>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>

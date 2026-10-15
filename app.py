@@ -480,43 +480,64 @@ def doctor_register():
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
-
     if request.method == "POST":
-
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "")
 
         conn = get_db()
-
-        user = conn.execute("""
-            SELECT *
-            FROM users
-            WHERE email = ?
-        """, (email,)).fetchone()
-
-        conn.close()
+        try:
+            user = conn.execute("""
+                SELECT *
+                FROM users
+                WHERE email = ? AND role = 'patient'
+            """, (email,)).fetchone()
+        finally:
+            conn.close()
 
         if user and check_password_hash(user["password"], password):
-
             session.clear()
-
             session["user_id"] = user["id"]
             session["name"] = user["name"]
-            session["role"] = user["role"]
+            session["role"] = "patient"
+            return redirect(url_for("patient_dashboard"))
 
-            if user["role"] == "patient":
-                return redirect(url_for("patient_dashboard"))
-
-            if user["role"] == "doctor":
-                return redirect(url_for("doctor_dashboard"))
-
-            if user["role"] == "admin":
-                return redirect(url_for("admin_dashboard"))
-
-        flash("Invalid email or password.", "error")
+        flash("Invalid patient email or password.", "error")
         return redirect(url_for("login"))
 
     return render_template("login.html")
+
+
+# =========================================================
+# ADMIN LOGIN
+# =========================================================
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    if request.method == "POST":
+        email = request.form.get("email", "").strip().lower()
+        password = request.form.get("password", "")
+
+        conn = get_db()
+        try:
+            user = conn.execute("""
+                SELECT *
+                FROM users
+                WHERE email = ? AND role = 'admin'
+            """, (email,)).fetchone()
+        finally:
+            conn.close()
+
+        if user and check_password_hash(user["password"], password):
+            session.clear()
+            session["user_id"] = user["id"]
+            session["name"] = user["name"]
+            session["role"] = "admin"
+            return redirect(url_for("admin_dashboard"))
+
+        flash("Invalid admin email or password.", "error")
+        return redirect(url_for("admin_login"))
+
+    return render_template("admin_login.html")
 
 
 # =========================================================
@@ -2601,7 +2622,7 @@ def doctor_skip_patient(appointment_id):
 def admin_dashboard():
 
     if "user_id" not in session:
-        return redirect(url_for("login"))
+        return redirect(url_for("admin_login"))
 
     if session.get("role") != "admin":
         return "Access denied.", 403
@@ -3431,6 +3452,220 @@ def admin_analytics():
     )
 
 
+
+
+# =========================================================
+# ADMIN DOCTOR PERFORMANCE
+# =========================================================
+
+
+@app.route("/admin/daily-appointment-trend")
+def admin_daily_appointment_trend():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT appointment_date,
+               COUNT(*) AS total,
+               SUM(CASE WHEN status = 'COMPLETED' THEN 1 ELSE 0 END) AS completed,
+               SUM(CASE WHEN status = 'SKIPPED' THEN 1 ELSE 0 END) AS skipped,
+               SUM(CASE WHEN status = 'CANCELLED' THEN 1 ELSE 0 END) AS cancelled
+        FROM appointments
+        GROUP BY appointment_date
+        ORDER BY appointment_date DESC
+        LIMIT 30
+    """).fetchall()
+    conn.close()
+
+    daily_stats = [dict(row) for row in reversed(rows)]
+
+    return render_template(
+        "admin_daily_appointment_trend.html",
+        daily_stats=daily_stats
+    )
+
+
+
+@app.route("/admin/top-performing-doctors")
+def admin_top_performing_doctors():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT
+            doctors.id AS doctor_id,
+            doctor_users.name AS doctor_name,
+            doctors.department,
+            doctors.specialization,
+            COUNT(appointments.id) AS total,
+            COALESCE(SUM(
+                CASE WHEN appointments.status = 'COMPLETED'
+                THEN 1 ELSE 0 END
+            ), 0) AS completed
+        FROM doctors
+        JOIN users AS doctor_users
+            ON doctors.user_id = doctor_users.id
+        LEFT JOIN appointments
+            ON appointments.doctor_id = doctors.id
+        WHERE doctors.status = 'approved'
+        GROUP BY doctors.id
+    """).fetchall()
+    conn.close()
+
+    doctor_stats = [dict(row) for row in rows]
+    for doctor in doctor_stats:
+        total = doctor["total"] or 0
+        completed = doctor["completed"] or 0
+        doctor["completion_rate"] = (
+            round(completed * 100 / total, 1) if total else 0
+        )
+
+    doctor_stats.sort(
+        key=lambda doctor: (
+            doctor["completed"] or 0,
+            doctor["completion_rate"],
+            doctor["total"] or 0
+        ),
+        reverse=True
+    )
+
+    return render_template(
+        "admin_top_performing_doctors.html",
+        doctor_stats=doctor_stats[:10]
+    )
+
+
+
+@app.route("/admin/appointment-status-distribution")
+def admin_appointment_status_distribution():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    rows = conn.execute("""
+        SELECT UPPER(status) AS status, COUNT(*) AS total
+        FROM appointments
+        GROUP BY UPPER(status)
+        ORDER BY total DESC
+    """).fetchall()
+    conn.close()
+
+    status_stats = [dict(row) for row in rows]
+    total_appointments = sum(item["total"] for item in status_stats)
+
+    for item in status_stats:
+        item["percentage"] = (
+            round(item["total"] * 100 / total_appointments, 1)
+            if total_appointments else 0
+        )
+
+    return render_template(
+        "admin_appointment_status_distribution.html",
+        status_stats=status_stats
+    )
+
+
+@app.route("/admin/doctor-performance")
+def admin_doctor_performance():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    doctor_stats = conn.execute("""
+        SELECT
+            doctors.id AS doctor_id,
+            doctor_users.name AS doctor_name,
+            doctors.department,
+            doctors.specialization,
+            COUNT(appointments.id) AS total,
+            SUM(CASE WHEN appointments.status = 'COMPLETED'
+                THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN appointments.status = 'SKIPPED'
+                THEN 1 ELSE 0 END) AS skipped,
+            SUM(CASE WHEN appointments.status = 'CANCELLED'
+                THEN 1 ELSE 0 END) AS cancelled
+        FROM doctors
+        JOIN users AS doctor_users
+            ON doctors.user_id = doctor_users.id
+        LEFT JOIN appointments
+            ON appointments.doctor_id = doctors.id
+        WHERE doctors.status = 'approved'
+        GROUP BY doctors.id
+        ORDER BY total DESC
+    """).fetchall()
+    conn.close()
+
+    doctor_stats = [dict(row) for row in doctor_stats]
+    for doctor in doctor_stats:
+        total = doctor["total"] or 0
+        completed = doctor["completed"] or 0
+        doctor["completion_rate"] = round(completed * 100 / total, 1) if total else 0
+
+    doctor_stats.sort(
+        key=lambda d: (d["completion_rate"], d["completed"] or 0, d["total"] or 0),
+        reverse=True
+    )
+
+    return render_template(
+        "admin_doctor_performance.html",
+        doctor_stats=doctor_stats
+    )
+
+
+# =========================================================
+# ADMIN DEPARTMENT PERFORMANCE
+# =========================================================
+
+@app.route("/admin/department-performance")
+def admin_department_performance():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    department_stats = conn.execute("""
+        SELECT
+            doctors.department,
+            COUNT(appointments.id) AS total,
+            SUM(CASE WHEN appointments.status = 'COMPLETED'
+                THEN 1 ELSE 0 END) AS completed,
+            SUM(CASE WHEN appointments.status = 'SKIPPED'
+                THEN 1 ELSE 0 END) AS skipped,
+            SUM(CASE WHEN appointments.status = 'CANCELLED'
+                THEN 1 ELSE 0 END) AS cancelled
+        FROM doctors
+        LEFT JOIN appointments
+            ON appointments.doctor_id = doctors.id
+        WHERE doctors.status = 'approved'
+        GROUP BY doctors.department
+        ORDER BY total DESC
+    """).fetchall()
+    conn.close()
+
+    department_stats = [dict(row) for row in department_stats]
+    for department in department_stats:
+        total = department["total"] or 0
+        completed = department["completed"] or 0
+        department["completion_rate"] = round(completed * 100 / total, 1) if total else 0
+
+    return render_template(
+        "admin_department_performance.html",
+        department_stats=department_stats
+    )
+
+
+
 @app.route("/admin/reports")
 def admin_reports():
 
@@ -3648,6 +3883,136 @@ def admin_reports():
 
         selected_date=selected_date,
         selected_status=selected_status
+    )
+
+
+
+# =========================================================
+# REPORTS & HISTORY - SEPARATE DETAIL PAGES
+# =========================================================
+
+@app.route("/admin/reports/appointment-history")
+def admin_appointment_history():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    selected_date = request.args.get("date", "")
+    selected_status = request.args.get("status", "").upper()
+    allowed_statuses = [
+        "WAITING", "CALLED", "IN_PROGRESS",
+        "COMPLETED", "SKIPPED", "CANCELLED"
+    ]
+
+    query = """
+        SELECT
+            appointments.id AS appointment_id,
+            appointments.appointment_date,
+            appointments.token_number,
+            appointments.status,
+            patient_users.name AS patient_name,
+            doctor_users.name AS doctor_name,
+            doctors.department,
+            doctors.specialization
+        FROM appointments
+        JOIN patients ON appointments.patient_id = patients.id
+        JOIN users AS patient_users ON patients.user_id = patient_users.id
+        JOIN doctors ON appointments.doctor_id = doctors.id
+        JOIN users AS doctor_users ON doctors.user_id = doctor_users.id
+        WHERE 1 = 1
+    """
+    params = []
+
+    if selected_date:
+        query += " AND appointments.appointment_date = ?"
+        params.append(selected_date)
+
+    if selected_status in allowed_statuses:
+        query += " AND appointments.status = ?"
+        params.append(selected_status)
+
+    query += """
+        ORDER BY appointments.appointment_date DESC,
+                 appointments.token_number ASC
+    """
+
+    conn = get_db()
+    try:
+        appointments = conn.execute(query, params).fetchall()
+    finally:
+        conn.close()
+
+    return render_template(
+        "admin_appointment_history.html",
+        appointments=appointments,
+        selected_date=selected_date,
+        selected_status=selected_status
+    )
+
+
+@app.route("/admin/reports/doctor-statistics")
+def admin_doctor_statistics():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    try:
+        doctor_stats = conn.execute("""
+            SELECT
+                doctors.id AS doctor_id,
+                doctor_users.name AS doctor_name,
+                doctors.department,
+                COUNT(appointments.id) AS total,
+                SUM(CASE WHEN appointments.status = 'COMPLETED'
+                         THEN 1 ELSE 0 END) AS completed,
+                SUM(CASE WHEN appointments.status = 'SKIPPED'
+                         THEN 1 ELSE 0 END) AS skipped
+            FROM doctors
+            JOIN users AS doctor_users ON doctors.user_id = doctor_users.id
+            LEFT JOIN appointments ON appointments.doctor_id = doctors.id
+            GROUP BY doctors.id
+            ORDER BY total DESC
+        """).fetchall()
+    finally:
+        conn.close()
+
+    return render_template(
+        "admin_doctor_statistics.html",
+        doctor_stats=doctor_stats
+    )
+
+
+@app.route("/admin/reports/department-statistics")
+def admin_department_statistics():
+    if "user_id" not in session:
+        return redirect(url_for("login"))
+    if session.get("role") != "admin":
+        return "Access denied.", 403
+
+    conn = get_db()
+    try:
+        department_stats = conn.execute("""
+            SELECT
+                doctors.department,
+                COUNT(appointments.id) AS total,
+                SUM(CASE WHEN appointments.status = 'COMPLETED'
+                         THEN 1 ELSE 0 END) AS completed,
+                SUM(CASE WHEN appointments.status = 'SKIPPED'
+                         THEN 1 ELSE 0 END) AS skipped
+            FROM doctors
+            LEFT JOIN appointments ON appointments.doctor_id = doctors.id
+            GROUP BY doctors.department
+            ORDER BY total DESC
+        """).fetchall()
+    finally:
+        conn.close()
+
+    return render_template(
+        "admin_department_statistics.html",
+        department_stats=department_stats
     )
 
 

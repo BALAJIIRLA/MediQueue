@@ -13,3 +13,18 @@ test_mediqueue.db
 
 # Local admin helper — do not commit
 /create_admin.py
+
+# Local databases and private runtime data
+instance/
+.env.*
+!.env.example
+# Backups and temporary files
+backups/
+*.sqlite
+*.sqlite3
+analytics_test.txt
+static/css/*.backup_*
+# Python and local environments
+.venv/
+# Nested copy of this repository
+/MediQueue/

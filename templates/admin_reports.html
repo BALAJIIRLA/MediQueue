@@ -15,7 +15,7 @@
 
 </head>
 
-<body>
+<body class="mq-admin-reports">
 
 <header class="navbar">
 
@@ -25,7 +25,7 @@
 
     <div class="nav-buttons">
 
-        
+
 <a href="{{ url_for('admin_analytics') }}"
    class="primary-btn">
     📈 Analytics
@@ -57,9 +57,7 @@
             Reports & History 📊
         </h1>
 
-        <p>
-            Monitor hospital performance and appointment history.
-        </p>
+
 
     </section>
 
@@ -174,351 +172,29 @@
     </section>
 
 
-    <!-- FILTER -->
 
-    <section class="admin-section">
-
-        <h2>
-            Appointment History
-        </h2>
-
-        <form method="GET"
-              class="report-filter-form">
-
-            <div>
-
-                <label>
-                    Appointment Date
-                </label>
-
-                <input
-                    type="date"
-                    name="date"
-                    value="{{ selected_date }}"
-                >
-
-            </div>
-
-
-            <div>
-
-                <label>
-                    Status
-                </label>
-
-                <select name="status">
-
-                    <option value="">
-                        All Statuses
-                    </option>
-
-                    <option value="WAITING"
-                        {% if selected_status == "WAITING" %}
-                        selected
-                        {% endif %}>
-                        Waiting
-                    </option>
-
-                    <option value="CALLED"
-                        {% if selected_status == "CALLED" %}
-                        selected
-                        {% endif %}>
-                        Called
-                    </option>
-
-                    <option value="IN_PROGRESS"
-                        {% if selected_status == "IN_PROGRESS" %}
-                        selected
-                        {% endif %}>
-                        In Progress
-                    </option>
-
-                    <option value="COMPLETED"
-                        {% if selected_status == "COMPLETED" %}
-                        selected
-                        {% endif %}>
-                        Completed
-                    </option>
-
-                    <option value="SKIPPED"
-                        {% if selected_status == "SKIPPED" %}
-                        selected
-                        {% endif %}>
-                        Skipped
-                    </option>
-
-                    <option value="CANCELLED"
-                        {% if selected_status == "CANCELLED" %}
-                        selected
-                        {% endif %}>
-                        Cancelled
-                    </option>
-
-                </select>
-
-            </div>
-
-
-            <button
-                type="submit"
-                class="primary-btn">
-
-                Apply Filter
-
-            </button>
-
-
-            <a href="{{ url_for('admin_reports') }}"
-               class="secondary-btn">
-
-                Clear
-
-            </a>
-
-        </form>
-
-
-        {% if appointments %}
-
-        <div class="admin-table-wrapper">
-
-            <table class="admin-table">
-
-                <thead>
-
-                    <tr>
-
-                        <th>ID</th>
-                        <th>Date</th>
-                        <th>Token</th>
-                        <th>Patient</th>
-                        <th>Doctor</th>
-                        <th>Department</th>
-                        <th>Status</th>
-
-                    </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                {% for appointment in appointments %}
-
-                    <tr>
-
-                        <td>
-                            {{ appointment["appointment_id"] }}
-                        </td>
-
-                        <td>
-                            {{ appointment["appointment_date"] }}
-                        </td>
-
-                        <td>
-                            <strong>
-                                #{{ appointment["token_number"] }}
-                            </strong>
-                        </td>
-
-                        <td>
-                            {{ appointment["patient_name"] }}
-                        </td>
-
-                        <td>
-                            {{ appointment["doctor_name"] }}
-                        </td>
-
-                        <td>
-                            {{ appointment["department"] }}
-                        </td>
-
-                        <td>
-
-                            <span class="appointment-status
-                                {% if appointment['status'] == 'WAITING' %}
-                                    waiting
-                                {% elif appointment['status'] == 'CALLED' %}
-                                    called
-                                {% elif appointment['status'] == 'IN_PROGRESS' %}
-                                    progress
-                                {% elif appointment['status'] == 'COMPLETED' %}
-                                    completed
-                                {% elif appointment['status'] == 'SKIPPED' %}
-                                    skipped
-                                {% else %}
-                                    cancelled
-                                {% endif %}">
-
-                                {{ appointment["status"] }}
-
-                            </span>
-
-                        </td>
-
-                    </tr>
-
-                {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-        {% else %}
-
-        <div class="empty-state">
-
-            <h3>
-                No appointments found
-            </h3>
-
-            <p>
-                Try changing the date or status filter.
-            </p>
-
-        </div>
-
-        {% endif %}
-
-    </section>
-
-
-    <!-- DOCTOR REPORT -->
-
-    <section class="admin-section">
-
-        <div class="admin-list-header">
-
-            <h2>
-                Doctor-wise Statistics
-            </h2>
-
-        </div>
-
-
-        <div class="admin-table-wrapper">
-
-            <table class="admin-table">
-
-                <thead>
-
-                    <tr>
-                        <th>Doctor</th>
-                        <th>Department</th>
-                        <th>Total</th>
-                        <th>Completed</th>
-                        <th>Skipped</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                {% for doctor in doctor_stats %}
-
-                    <tr>
-
-                        <td>
-                            <strong>
-                                {{ doctor["doctor_name"] }}
-                            </strong>
-                        </td>
-
-                        <td>
-                            {{ doctor["department"] }}
-                        </td>
-
-                        <td>
-                            {{ doctor["total"] }}
-                        </td>
-
-                        <td>
-                            {{ doctor["completed"] or 0 }}
-                        </td>
-
-                        <td>
-                            {{ doctor["skipped"] or 0 }}
-                        </td>
-
-                    </tr>
-
-                {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
-
-    <!-- DEPARTMENT REPORT -->
-
-    <section class="admin-section">
-
-        <div class="admin-list-header">
-
-            <h2>
-                Department-wise Statistics
-            </h2>
-
-        </div>
-
-
-        <div class="admin-table-wrapper">
-
-            <table class="admin-table">
-
-                <thead>
-
-                    <tr>
-                        <th>Department</th>
-                        <th>Total</th>
-                        <th>Completed</th>
-                        <th>Skipped</th>
-                    </tr>
-
-                </thead>
-
-                <tbody>
-
-                {% for department in department_stats %}
-
-                    <tr>
-
-                        <td>
-                            <strong>
-                                {{ department["department"] }}
-                            </strong>
-                        </td>
-
-                        <td>
-                            {{ department["total"] }}
-                        </td>
-
-                        <td>
-                            {{ department["completed"] or 0 }}
-                        </td>
-
-                        <td>
-                            {{ department["skipped"] or 0 }}
-                        </td>
-
-                    </tr>
-
-                {% endfor %}
-
-                </tbody>
-
-            </table>
-
-        </div>
-
-    </section>
-
+<section class="performance-nav-grid">
+    <a href="{{ url_for('admin_appointment_history') }}"
+       class="performance-nav-card">
+        <h3>Appointment History</h3>
+        <p>View and filter appointments by date and status.</p>
+        <span>Open Appointment History →</span>
+    </a>
+
+    <a href="{{ url_for('admin_doctor_statistics') }}"
+       class="performance-nav-card">
+        <h3>Doctor-wise Statistics</h3>
+        <p>Review each doctor's total, completed, and skipped appointments.</p>
+        <span>View Doctor Statistics →</span>
+    </a>
+
+    <a href="{{ url_for('admin_department_statistics') }}"
+       class="performance-nav-card">
+        <h3>Department-wise Statistics</h3>
+        <p>Compare appointment activity across departments.</p>
+        <span>View Department Statistics →</span>
+    </a>
+</section>
 
 </main>
 

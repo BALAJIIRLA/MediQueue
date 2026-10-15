@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Appointment Status Distribution | MediQueue</title>
+    <style>
+        * { box-sizing: border-box; }
+        body {
+            margin: 0; padding: 20px; background: #f3f6fb;
+            color: #17243b; font-family: Arial, sans-serif;
+        }
+        main { max-width: 950px; margin: 20px auto; }
+        .back {
+            display: inline-block; margin-bottom: 16px;
+            color: #2563eb; text-decoration: none; font-weight: bold;
+        }
+        .panel {
+            background: white; padding: 22px; margin-bottom: 18px;
+            border-radius: 16px; box-shadow: 0 5px 22px #17243b0c;
+        }
+        h1 { margin-top: 0; font-size: 25px; }
+        p { color: #64748b; }
+        .item { padding: 17px 0; border-bottom: 1px solid #e8edf5; }
+        .item:last-child { border-bottom: 0; }
+        .labels {
+            display: flex; justify-content: space-between;
+            gap: 12px; margin-bottom: 10px;
+        }
+        .track {
+            height: 12px; background: #e8eef8;
+            border-radius: 9px; overflow: hidden;
+        }
+        .fill { height: 100%; background: #6366f1; border-radius: 9px; }
+        .empty { text-align: center; padding: 25px; color: #64748b; }
+    </style>
+</head>
+<body class="mq-admin-detail">
+<main>
+    <a class="back" href="{{ url_for('admin_analytics') }}">
+        ← Back to Analytics
+    </a>
+
+    <section class="panel">
+        <h1>📊 Appointment Status Distribution</h1>
+        <p>View the count and percentage of appointments in each status.</p>
+    </section>
+
+    <section class="panel">
+        {% for item in status_stats %}
+        <div class="item">
+            <div class="labels">
+                <strong>{{ item["status"].replace("_", " ") }}</strong>
+                <span>{{ item["total"] }} appointments · {{ item["percentage"] }}%</span>
+            </div>
+            <div class="track">
+                <div class="fill" style="width: {{ item['percentage'] }}%;"></div>
+            </div>
+        </div>
+        {% else %}
+        <div class="empty">No appointment data available yet.</div>
+        {% endfor %}
+    </section>
+</main>
+</body>
+</html>

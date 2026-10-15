@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MediQueue - Department Statistics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body class="mq-admin-detail">
+<header class="navbar">
+    <div class="logo">Medi<span>Queue</span></div>
+    <div class="nav-buttons">
+        <a href="{{ url_for('admin_reports') }}" class="primary-btn">← Reports & History</a>
+        <a href="{{ url_for('admin_dashboard') }}"><button>Dashboard</button></a>
+        <a href="{{ url_for('logout') }}"><button>Logout</button></a>
+    </div>
+</header>
+<main class="dashboard">
+    <section class="dashboard-header">
+        <p class="tagline">HOSPITAL REPORTS</p>
+        <h1>Department-wise Statistics 🏥</h1>
+        <p>Appointment totals and outcomes for each department.</p>
+    </section>
+    <section class="admin-section">
+        {% if department_stats %}
+        <div class="admin-table-wrapper">
+            <table class="admin-table">
+                <thead><tr><th>Department</th><th>Total</th><th>Completed</th><th>Skipped</th></tr></thead>
+                <tbody>
+                {% for department in department_stats %}
+                    <tr>
+                        <td><strong>{{ department["department"] }}</strong></td>
+                        <td>{{ department["total"] }}</td>
+                        <td>{{ department["completed"] or 0 }}</td>
+                        <td>{{ department["skipped"] or 0 }}</td>
+                    </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <div class="empty-state"><h3>No department statistics available</h3></div>
+        {% endif %}
+    </section>
+</main>
+</body>
+</html>
