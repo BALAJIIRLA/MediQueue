@@ -4120,8 +4120,118 @@ def ensure_admin_from_environment():
         conn.close()
 
 
+
+
+def ensure_demo_accounts_from_environment():
+    """Create missing MediQueue demo accounts without resetting existing accounts."""
+    password = os.environ.get("MEDIQUEUE_DEMO_PASSWORD", "")
+    if not password:
+        return
+
+    if len(password) < 12:
+        raise RuntimeError(
+            "MEDIQUEUE_DEMO_PASSWORD must contain at least 12 characters."
+        )
+
+    demo_patients = [
+        ("Demo Patient 1", "demo.patient1@mediqueue.demo", "9200000001", 22, "Male"),
+        ("Demo Patient 2", "demo.patient2@mediqueue.demo", "9200000002", 25, "Female"),
+        ("Demo Patient 3", "demo.patient3@mediqueue.demo", "9200000003", 28, "Male"),
+        ("Demo Patient 4", "demo.patient4@mediqueue.demo", "9200000004", 24, "Female"),
+    ]
+
+    demo_doctors = [
+        ("Demo Doctor 1", "demo.doctor1@mediqueue.demo", "9300000001",
+         "General Medicine", "MBBS", 5),
+        ("Demo Doctor 2", "demo.doctor2@mediqueue.demo", "9300000002",
+         "Cardiology", "MBBS, MD", 8),
+        ("Demo Doctor 3", "demo.doctor3@mediqueue.demo", "9300000003",
+         "Pediatrics", "MBBS, DCH", 6),
+    ]
+
+    conn = get_db()
+    try:
+        for name, email, phone, age, gender in demo_patients:
+            existing = conn.execute(
+                "SELECT id, email, phone, role FROM users WHERE email = ? OR phone = ?",
+                (email, phone),
+            ).fetchall()
+
+            if existing:
+                if len(existing) != 1 or (
+                    existing[0]["email"] != email
+                    or existing[0]["phone"] != phone
+                    or existing[0]["role"] != "patient"
+                ):
+                    raise RuntimeError(
+                        f"Demo patient identity conflict for {email}; no account was overwritten."
+                    )
+                user_id = existing[0]["id"]
+            else:
+                cursor = conn.execute(
+                    """INSERT INTO users (name, email, phone, password, role)
+                       VALUES (?, ?, ?, ?, 'patient')""",
+                    (name, email, phone, generate_password_hash(password)),
+                )
+                user_id = cursor.lastrowid
+
+            profile = conn.execute(
+                "SELECT id FROM patients WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            if not profile:
+                conn.execute(
+                    "INSERT INTO patients (user_id, age, gender) VALUES (?, ?, ?)",
+                    (user_id, age, gender),
+                )
+
+        for name, email, phone, department, qualification, experience in demo_doctors:
+            existing = conn.execute(
+                "SELECT id, email, phone, role FROM users WHERE email = ? OR phone = ?",
+                (email, phone),
+            ).fetchall()
+
+            if existing:
+                if len(existing) != 1 or (
+                    existing[0]["email"] != email
+                    or existing[0]["phone"] != phone
+                    or existing[0]["role"] != "doctor"
+                ):
+                    raise RuntimeError(
+                        f"Demo doctor identity conflict for {email}; no account was overwritten."
+                    )
+                user_id = existing[0]["id"]
+            else:
+                cursor = conn.execute(
+                    """INSERT INTO users (name, email, phone, password, role)
+                       VALUES (?, ?, ?, ?, 'doctor')""",
+                    (name, email, phone, generate_password_hash(password)),
+                )
+                user_id = cursor.lastrowid
+
+            profile = conn.execute(
+                "SELECT id FROM doctors WHERE user_id = ?", (user_id,)
+            ).fetchone()
+            if not profile:
+                conn.execute(
+                    """INSERT INTO doctors
+                       (user_id, department, specialization, qualification, experience, status)
+                       VALUES (?, ?, ?, ?, ?, 'approved')""",
+                    (user_id, department, department, qualification, experience),
+                )
+            # Existing demo doctor profiles retain their current status.
+            # Admin blocks/approval decisions must survive application restarts.
+
+        conn.commit()
+    except Exception:
+        conn.rollback()
+        raise
+    finally:
+        conn.close()
+
+
 init_database()
 ensure_admin_from_environment()
+ensure_demo_accounts_from_environment()
 
 
 if __name__ == "__main__":
